@@ -1,7 +1,9 @@
+import { useState } from "react"
 import "../componentStyles/Board.css"
 
 export const Board = () => {
+    const [title, setTitle] = useState('My test board')
     return (
-        <div>Hello This is a board page</div>
+        <header>{title}</header>
     )
 }
