@@ -1,6 +1,7 @@
-import React from 'react';
+import { CardList } from '../components/List/List';
 import { useState } from 'react';
 import '../componentStyles/Board.css';
+import { ListFormat } from 'typescript';
 
 export const Board = () => {
   const [title, setTitle] = useState('Моя тестова дошка')
@@ -30,6 +31,6 @@ export const Board = () => {
   ]);
   return (
   <div className='container'>
-    <header>{title}</header>
+    <h1>{title}</h1>
   </div>);
 }

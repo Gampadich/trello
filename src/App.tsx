@@ -1,4 +1,4 @@
-import { Board } from './pages/board/board';
+import { Board } from './pages/board/Board';
 import "./styles/App.css"
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import { useState } from 'react';
