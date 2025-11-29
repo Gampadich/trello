@@ -8,8 +8,8 @@ function App() {
   return (
     <BrowserRouter>
       {move 
-        ? <Link to='/board'><button onClick={() => isMove(false)}>To board page</button></Link> 
-        : <Link to='/'><button onClick={() => isMove(true)}>To home page</button></Link>}
+        ? <Link to='/board'><button className='navButon' onClick={() => isMove(false)}>To board page</button></Link> 
+        : <Link to='/'><button className='navButon' onClick={() => isMove(true)}>To home page</button></Link>}
       <Routes>
         <Route path='/board' element={<Board/>}/>
         <Route path='/'/>

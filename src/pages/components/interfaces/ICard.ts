@@ -1,4 +1,4 @@
 export interface ICard {
-    id : string
+    id : number
     title : string
 }
