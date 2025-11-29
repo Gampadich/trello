@@ -33,7 +33,7 @@ export const Board = () => {
   });
   return (
     <div className="container">
-      <Link to='/'><button className='home-button'>To home page</button></Link>
+      <Link to='/trello'><button className='home-button'>To home page</button></Link>
       <h1 className="board-title">{title}</h1>
       <div className="lists-wrapper">
         {tables.lists.map((list) => (

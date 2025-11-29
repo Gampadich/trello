@@ -7,7 +7,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path='/board' element={<Board/>}/>
-        <Route path='/'/>
+        <Route path='/trello'/>
       </Routes>
     </BrowserRouter>
   );
