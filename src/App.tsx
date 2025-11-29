@@ -1,13 +1,14 @@
 import { Board } from './pages/board/board';
 import "./styles/App.css"
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Home } from './pages/Home/Home';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path='/board' element={<Board/>}/>
-        <Route path='/trello'/>
+        <Route path='/trello' element={<Home/>}/>
       </Routes>
     </BrowserRouter>
   );

@@ -1,0 +1,99 @@
+h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  margin: 30px 0;
+  font-size: 28px;
+  color: #333;
+}
+
+.text-decoration-none {
+  text-decoration: none;
+}
+
+.cards-container {
+  display: flex;
+  flex-direction: row;  
+  gap: 20px;
+  padding: 40px;
+  flex-wrap: wrap; 
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.card-item {
+  min-width: 180px;
+  max-width: 200px;
+  min-height: 100px;
+  padding: 20px 24px;
+  border-radius: 20px;
+  font-size: 18px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: 500;
+  color: white;
+  text-decoration: none;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.1) 10px,
+      rgba(255, 255, 255, 0.1) 20px
+    );  
+}
+
+.card-item:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.add-board-button {
+  min-width: 240px;
+  min-height: 140px;
+  padding: 20px 24px;
+  border: 3px dashed #aaa;
+  border-radius: 20px;
+  background: white;
+  color: #666;
+  font-size: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.add-board-button:hover {
+  border-color: #666;
+  background: #f9f9f9;
+  color: #333;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.add-board-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .cards-container {
+    padding: 20px;
+    gap: 15px;
+  }
+  
+  .card-item,
+  .add-board-button {
+    min-width: 150px;
+    max-width: 150px;
+    min-height: 90px;
+  }
+}

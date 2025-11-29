@@ -4,8 +4,8 @@ import { useState } from 'react';
 import './Board.css';
 
 export const Board = () => {
-  const [title, setTitle] = useState('Моя тестова дошка');
-  const [tables, setTable] = useState({
+  const [title] = useState('Моя тестова дошка');
+  const [tables] = useState({
     lists: [
       {
         id: 1,
