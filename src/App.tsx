@@ -7,7 +7,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/board' element={<Board/>}/>
+        <Route path='/board/:id' element={<Board/>}/>
         <Route path='/trello' element={<Home/>}/>
       </Routes>
     </BrowserRouter>
