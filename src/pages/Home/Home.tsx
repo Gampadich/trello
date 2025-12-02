@@ -25,7 +25,6 @@ export const Home = () => {
         const response: ApiBoardsResponse = await instance.get('/board');
         
         console.log('API Response:', response);
-        console.log('Boards:', response.boards);
         
         setCards(response.boards);
         

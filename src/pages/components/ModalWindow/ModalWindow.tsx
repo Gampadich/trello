@@ -13,7 +13,7 @@ interface CardDataInterface {
 }
 
 export const ModalWindow = ({ onClose } : ModalWindowProps) => {
-    const [send, setSend] = useState(false)
+    const [,setSend] = useState(false)
     const [title, setTitle] = useState("")
     const [color, setColor] = useState("#ffffff")
 
