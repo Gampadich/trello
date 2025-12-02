@@ -4,23 +4,6 @@ import { CardList } from '../components/List/List';
 import { useEffect, useState } from 'react';
 import './Board.css';
 
-interface ApiDetailResponce {
-  title: string;
-  lists: [{
-    id: number;
-    title : string
-    cards: {
-      id: number;
-      title: string;
-      color : string
-      description : string;
-      custom: {
-        deadline : string;
-      };
-    };
-  }]
-}
-
 interface CardType {
   id: number;
   title: string;
@@ -37,6 +20,11 @@ interface ListType {
   cards : CardType[]
 }
 
+interface Responce {
+  title: string;
+  lists: ListType[];
+}
+
 export const Board = () => {
   const { id } = useParams<{ id : string }>();
   const [title, setTitle] = useState('');
@@ -46,7 +34,7 @@ export const Board = () => {
     setLoading(true);
     const fetchBoardDetails = async () => {
       try {
-        const responce : ApiDetailResponce = await instance.get(`/board/${id}`)
+        const responce : Responce = await instance.get(`/board/${id}`)
         console.log('Board details:', responce);
         setTitle(responce.title)
         setTables(responce.lists)
