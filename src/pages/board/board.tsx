@@ -4,6 +4,10 @@ import { CardList } from '../components/List/List';
 import { useEffect, useState } from 'react';
 import './Board.css';
 
+interface Title{
+  title : string
+}
+
 interface CardType {
   id: number;
   title: string;
@@ -30,6 +34,7 @@ export const Board = () => {
   const [title, setTitle] = useState('');
   const [tables, setTables] = useState<ListType[]>([]);
   const [loading, setLoading] = useState(false);
+  const [click, isClick] = useState(false);
   useEffect(() => {
     setLoading(true);
     const fetchBoardDetails = async () => {
@@ -50,7 +55,15 @@ export const Board = () => {
   return (
     <div className="container">
       <Link to='/trello'><button className='home-button'>To home page</button></Link>
-      <h1 className="board-title">{title}</h1>
+      {click ? <input className='board-title-input' autoFocus={true} onBlur={(e) => {setTitle(e.target.value); isClick(false)}} defaultValue={title}
+      onKeyDown={(e) => {
+        if(e.key === 'Enter'){
+          setTitle(e.currentTarget.value);
+          instance.put(`/board/${id}`, {title: e.currentTarget.value});
+          isClick(false);
+        }
+      }}/> :
+      <h1 className='board-title' onClick={() => isClick(true)}>{title}</h1>}
       <div className="lists-wrapper">
         {tables.map((list) => (
           <CardList key={list.id} title={list.title} cards={list.cards} />

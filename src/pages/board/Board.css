@@ -5,12 +5,43 @@ body {
 }
 
 .board-title {
+  cursor: pointer;
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
   font-size: 24px;
   margin: 0 0 30px 0;
   font-weight: bold;
   color: #333;
+  min-height: 32px; /* фіксована висота */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-title-input {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  font-size: 24px;
+  margin: 0 0 30px 0;
+  font-weight: bold;
+  color: #333;
+  border: 2px solid #4CAF50;
+  border-radius: 4px;
+  padding: 4px 12px;
+  background-color: white;
+  width: 100%;
+  max-width: 600px; /* обмеження ширини */
+  box-sizing: border-box;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 32px; /* така сама висота як у h1 */
+}
+
+.board-title-input:focus {
+  outline: none;
+  border-color: #45a049;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
 .lists-wrapper {
