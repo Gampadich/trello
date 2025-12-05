@@ -4,10 +4,6 @@ import { CardList } from '../components/List/List';
 import { useEffect, useState } from 'react';
 import './Board.css';
 
-interface Title{
-  title : string
-}
-
 interface CardType {
   id: number;
   title: string;
@@ -34,7 +30,8 @@ export const Board = () => {
   const [title, setTitle] = useState('');
   const [tables, setTables] = useState<ListType[]>([]);
   const [loading, setLoading] = useState(false);
-  const [click, isClick] = useState(false);
+  const [titleClick, isTitleClick] = useState(false);
+  const [buttonClick, isButtonClick] = useState(false);
   useEffect(() => {
     setLoading(true);
     const fetchBoardDetails = async () => {
@@ -55,20 +52,37 @@ export const Board = () => {
   return (
     <div className="container">
       <Link to='/trello'><button className='home-button'>To home page</button></Link>
-      {click ? <input className='board-title-input' autoFocus={true} onBlur={(e) => {setTitle(e.target.value); isClick(false)}} defaultValue={title}
+      {titleClick ? <input className='board-title-input' autoFocus={true} onBlur={(e) => {setTitle(e.target.value); isTitleClick(false)}} defaultValue={title}
       onKeyDown={(e) => {
         if(e.key === 'Enter'){
           setTitle(e.currentTarget.value);
           instance.put(`/board/${id}`, {title: e.currentTarget.value});
-          isClick(false);
+          isTitleClick(false);
         }
       }}/> :
-      <h1 className='board-title' onClick={() => isClick(true)}>{title}</h1>}
+      <h1 className='board-title' onClick={() => isTitleClick(true)}>{title}</h1>}
       <div className="lists-wrapper">
         {tables.map((list) => (
           <CardList key={list.id} title={list.title} cards={list.cards} />
         ))}
-        <button className='add-list-button'>+ Add list</button>
+        {buttonClick &&
+          <input className='add-list-input' autoFocus={true} onBlur={() => isButtonClick(false)} placeholder='Put your column title...' onKeyDown={
+            async (e) => {
+              if(e.key === 'Enter'){
+                try {
+                  let newTables = {title : e.currentTarget.value, cards: []};
+                  setTables([...tables, {id: Date.now(), title: e.currentTarget.value, cards: []}]);
+                  await instance.put(`/board/${id}`, {lists : newTables});
+                  window.location.reload();
+                isButtonClick(false);
+                } catch (error) {
+                  console.error('Error adding new list:', error);
+                }
+              }
+            }
+          }/>
+        }
+        <button className='add-list-button' onClick={() => isButtonClick(true)}>+ Add list</button>
       </div>
     </div>
   );
