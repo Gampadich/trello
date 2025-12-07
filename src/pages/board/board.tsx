@@ -32,7 +32,6 @@ export const Board = () => {
   const [loading, setLoading] = useState(false);
   const [titleClick, isTitleClick] = useState(false);
   const [buttonClick, isButtonClick] = useState(false);
-  let position = 0
   useEffect(() => {
     setLoading(true);
     const fetchBoardDetails = async () => {
@@ -90,14 +89,15 @@ export const Board = () => {
             placeholder="Put your column title..."
             onKeyDown={async (e) => {
               if (e.key === 'Enter') {
-                position += 1
+                let pos = tables.length + 1;
                 const newList = {
                   title: e.currentTarget.value,
-                  position : position
+                  position : pos
                 };
                 console.log('New List:', newList);
                 await instance.post(`/board/${id}/list`, newList);
                 isButtonClick(false);
+                window.location.reload();
               }
             }}
           />
