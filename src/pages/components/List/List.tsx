@@ -2,6 +2,7 @@ import { ICard } from '../interfaces/ICard';
 import './List.css';
 
 interface CardProps {
+  key : number;
   title: string;
   cards: ICard[];
 }
@@ -11,7 +12,7 @@ export const CardList = (props: CardProps) => {
   const listCards = cards.map((title) => <li key={title.id}>{title.title}</li>);
   return (
     <div className='containerCard'>
-      <div>
+      <div> 
         <h2>{props.title}</h2>
         <ul>
           {listCards}

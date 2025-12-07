@@ -91,6 +91,7 @@ export const Board = () => {
               if (e.key === 'Enter') {
                 let pos = tables.length + 1;
                 const newList = {
+                  id : pos,
                   title: e.currentTarget.value,
                   position : pos
                 };
