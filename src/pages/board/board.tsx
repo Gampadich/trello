@@ -79,7 +79,7 @@ export const Board = () => {
       )}
       <div className="lists-wrapper">
         {tables.map((list) => (
-          <CardList key={list.id} title={list.title} cards={list.cards} />
+          <CardList listId={list.id} key={list.id} title={list.title} cards={list.cards} />
         ))}
         {buttonClick && (
           <input
@@ -97,7 +97,6 @@ export const Board = () => {
                 };
                 console.log('New List:', newList);
                 await instance.post(`/board/${id}/list`, newList);
-                isButtonClick(false);
                 window.location.reload();
               }
             }}
