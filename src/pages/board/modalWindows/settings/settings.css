@@ -47,3 +47,13 @@
     background-color: #d45a5a;
     transition: 0.3s;
 }
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 80px;
+  z-index: 1000;
+}
