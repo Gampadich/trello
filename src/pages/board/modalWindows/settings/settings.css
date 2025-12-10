@@ -1,0 +1,49 @@
+.settingsWindow{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap : 10px;
+    top: 65px;
+    right: 20px;
+    width: 200px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 15px;
+}
+
+.settingsTitle{
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+}
+
+.changeColorButton, .deleteBoard{
+    background-color: white;
+    padding: 10px;
+    border: none;
+    border: solid 2px black;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+    transition: 0.3s;
+}
+
+.changeColorButton:hover{
+    border: none;
+    color: white;
+    background-color: #5a9bd4;
+    transition: 0.3s;
+}
+
+.deleteBoard:hover{
+    border: none;
+    color: white;
+    background-color: #d45a5a;
+    transition: 0.3s;
+}
