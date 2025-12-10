@@ -18,11 +18,11 @@ export const Settings = ({ settingsOpen }: SettingsProps) => {
         <button className="changeColorButton" onClick={() => setChangeColor(true)}>
           Change color
         </button>
-        {changeColor && <ChangeColor />}
+        {changeColor && <ChangeColor setChangeColor={() => setChangeColor(false)}/>}
         <button className="deleteBoard" onClick={() => setDeleteBoard(true)}>
           Delete board
         </button>
-        {deleteBoard && <DeleteBoard />}
+        {deleteBoard && <DeleteBoard setDeleteBoard={() => setDeleteBoard(false)}/>}
       </div>
     </div>
   );
