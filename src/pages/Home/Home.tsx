@@ -19,6 +19,7 @@ export const Home = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.body.style.backgroundColor = '#ffffff';
     const fetchCards = async () => {
       try {
         setLoading(true);

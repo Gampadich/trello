@@ -35,6 +35,8 @@ export const Board = () => {
   const [buttonClick, isButtonClick] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   useEffect(() => {
+    const savedColor = localStorage.getItem(`color-board-${id}`);
+    document.body.style.backgroundColor = savedColor ? savedColor : '#ffffff';
     setLoading(true);
     const fetchBoardDetails = async () => {
       try {
