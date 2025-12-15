@@ -25,8 +25,6 @@ export const Home = () => {
         setLoading(true);
         const response: ApiBoardsResponse = await instance.get('/board');
         
-        console.log('API Response:', response);
-        
         setCards(response.boards);
         
       } catch (err) {
