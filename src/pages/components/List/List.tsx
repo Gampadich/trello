@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useState, DragEvent, useRef } from 'react';
 import { ICard } from '../interfaces/ICard';
 import './List.css';
+import { Link } from 'react-router-dom';
 
 interface CardProps {
   title: string;
@@ -23,13 +24,13 @@ export const CardList = (props: CardProps) => {
     e.dataTransfer.effectAllowed = 'move';
 
     const target = e.currentTarget;
-    target.style.transition = "none";
-    target.style.transform = "rotate(5deg)";
-    
+    target.style.transition = 'none';
+    target.style.transform = 'rotate(5deg)';
+
     dragTimeout.current = setTimeout(() => {
-      target.style.transition = ""; 
-      target.style.transform = "";  
-      target.classList.add('dragging'); 
+      target.style.transition = '';
+      target.style.transform = '';
+      target.classList.add('dragging');
     }, 0);
   };
 
@@ -38,13 +39,13 @@ export const CardList = (props: CardProps) => {
 
     const target = e.currentTarget;
     target.classList.remove('dragging');
-    target.style.transform = "";
-    target.style.transition = "";
+    target.style.transform = '';
+    target.style.transition = '';
 
-    document.querySelectorAll('.slot').forEach(el => el.remove());
-    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    document.querySelectorAll('.slot').forEach((el) => el.remove());
+    document.querySelectorAll('.drag-over').forEach((el) => el.classList.remove('drag-over'));
   };
-  
+
   const handleDragOver = (e: DragEvent<HTMLUListElement>) => {
     e.preventDefault();
     const list = e.currentTarget;
@@ -83,42 +84,42 @@ export const CardList = (props: CardProps) => {
       const newPosition = newIndex + 1;
       slot.remove();
       try {
-        await instance.put(`/board/${id}/card`, [
-          { id: cardId, position: newPosition, list_id: props.listId }
-        ]);
+        await instance.put(`/board/${id}/card`, [{ id: cardId, position: newPosition, list_id: props.listId }]);
         window.location.reload();
       } catch (error) {
-        console.error("Error moving card:", error);
+        console.error('Error moving card:', error);
       }
     }
   };
 
   const getDragAfterElement = (container: HTMLElement, y: number): Element | null => {
-    const draggableElements = Array.from(
-      container.querySelectorAll('.card:not(.dragging):not(.slot)')
-    );
-    return draggableElements.reduce((closest, child) => {
-      const box = child.getBoundingClientRect();
-      const offset = y - box.top - box.height / 2;
-      if (offset < 0 && offset > closest.offset) {
-        return { offset: offset, element: child };
-      } else {
-        return closest;
-      }
-    }, { offset: Number.NEGATIVE_INFINITY, element: null as Element | null }).element;
-  }
+    const draggableElements = Array.from(container.querySelectorAll('.card:not(.dragging):not(.slot)'));
+    return draggableElements.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      },
+      { offset: Number.NEGATIVE_INFINITY, element: null as Element | null }
+    ).element;
+  };
 
   const listCards = cards.map((card) => (
-    <li
-      className="card"
-      key={card.id}
-      draggable={true}
-      onDragStart={(e) => handleDragStart(e, card)}
-      onDragEnd={handleDragEnd}
-    >
-      {card.color && <div className="card-label" style={{ background: card.color }}></div>}
-      {card.title}
-    </li>
+    <Link key={card.id} to={`/board/${id}/card/${card.id}`}>
+      <li
+        className="card"
+        draggable={true}
+        onDragStart={(e) => handleDragStart(e, card)}
+        onDragEnd={handleDragEnd}
+      >
+        {card.color && <div className="card-label" style={{ background: card.color }}></div>}
+        {card.title}
+      </li>
+    </Link>
   ));
 
   const listID = props.listId.toString();
