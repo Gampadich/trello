@@ -1,9 +1,23 @@
+import { useEffect } from 'react';
 import './CardEditWindowStyle.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 
 export const CardEditWindow = () => {
   const { boardId } = useParams<{boardId: string}>();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const backToBoard = () => {
+      navigate(`/board/${boardId}`);
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        backToBoard();
+      }
+    })
+  })
+
   return (
     <Link to={`/board/${boardId}`} className='link'>
       <div className="modal-overlay">

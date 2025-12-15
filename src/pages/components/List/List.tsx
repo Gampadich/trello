@@ -109,7 +109,7 @@ export const CardList = (props: CardProps) => {
   };
 
   const listCards = cards.map((card) => (
-    <Link key={card.id} to={`/board/${id}/card/${card.id}`}>
+    <Link key={card.id} to={`/board/${id}/card/${card.id}`} className='link'>
       <li
         className="card"
         draggable={true}

@@ -30,6 +30,10 @@
   border-radius: 3px;
 }
 
+.link{
+  text-decoration: none;
+}
+
 .card {
   font-family: Arial, Helvetica, sans-serif;
   background-color: white;
