@@ -1,9 +1,14 @@
 import instance from '../../../api/request';
 import { useParams } from 'react-router-dom';
-import { useState, DragEvent, useRef } from 'react';
+import { useState, DragEvent, useRef, useEffect } from 'react';
 import { ICard } from '../interfaces/ICard';
 import './List.css';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { uppertCards } from '../../../ReduxApi/cardSlice';
+import { AppDispatch } from '../../../ReduxApi/store';
+// Імпортуємо cardDetails, щоб знати, до чого приводити типи
+import { cardDetails } from '../../../ReduxApi/cardEdit';
 
 interface CardProps {
   title: string;
@@ -14,7 +19,21 @@ interface CardProps {
 export const CardList = (props: CardProps) => {
   const { id } = useParams<{ id: string }>();
   const [clickButton, setClickButton] = useState(false);
-  const dragTimeout = useRef<NodeJS.Timeout | null>(null);
+  const dragTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    if (props.cards && props.cards.length > 0) {
+      const cardsForRedux: cardDetails[] = props.cards.map((card) => ({
+        ...card,
+        list_id: props.listId,
+        listId: props.listId,
+        description: card.description || '',
+      }));
+
+      dispatch(uppertCards(cardsForRedux));
+    }
+  }, [props.cards, props.listId, dispatch]);
 
   const cards = [...props.cards].sort((a, b) => a.position - b.position);
 
@@ -66,7 +85,9 @@ export const CardList = (props: CardProps) => {
 
   const handleDragLeave = (e: DragEvent<HTMLUListElement>) => {
     const list = e.currentTarget;
-    if (!list.contains(e.relatedTarget as Node)) {
+    const related = e.relatedTarget;
+    // без використання `as` або `any` — перевіряємо, чи related є Node
+    if (!(related instanceof Node) || !list.contains(related)) {
       list.classList.remove('drag-over');
     }
   };
@@ -109,13 +130,8 @@ export const CardList = (props: CardProps) => {
   };
 
   const listCards = cards.map((card) => (
-    <Link key={card.id} to={`/board/${id}/card/${card.id}`} className='link'>
-      <li
-        className="card"
-        draggable={true}
-        onDragStart={(e) => handleDragStart(e, card)}
-        onDragEnd={handleDragEnd}
-      >
+    <Link key={card.id} to={`/board/${id}/card/${card.id}`} className="link">
+      <li className="card" draggable={true} onDragStart={(e) => handleDragStart(e, card)} onDragEnd={handleDragEnd}>
         {card.color && <div className="card-label" style={{ background: card.color }}></div>}
         {card.title}
       </li>
