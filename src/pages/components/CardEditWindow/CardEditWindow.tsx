@@ -32,11 +32,7 @@ interface IBoardResponse {
 }
 
 function isBoardResponse(data: unknown): data is IBoardResponse {
-  return (
-    typeof data === 'object' &&
-    data !== null &&
-    'lists' in data
-  );
+  return typeof data === 'object' && data !== null && 'lists' in data;
 }
 
 const getSafeListId = (rawId: ListIdVariant | undefined): number | null => {
@@ -61,23 +57,21 @@ const stringToColor = (str: string) => {
 };
 
 export const CardEditWindow = () => {
-  // --- ВИПРАВЛЕННЯ 1: Універсальний пошук ID ---
-  // Ми читаємо всі параметри і беремо boardId, якщо він є, або id як запасний варіант.
   const params = useParams<Record<string, string>>();
-  const boardId = params.boardId || params.id; 
+  const boardId = params.boardId || params.id;
   const cardId = params.cardId;
-  
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Отримуємо ID поточного юзера
   const currentUserId = Number(localStorage.getItem('userId')) || 1;
 
-  const card = useSelector((state: RootState) =>
+  const card = useSelector((state: RootState) => 
     state.cards.items.find((c) => c.id === Number(cardId))
   );
 
-  const lists = useSelector((state: RootState) => state.lists?.items || []);
+  // ВИПРАВЛЕННЯ 1: Примусове приведення типу до локального IList, щоб TypeScript бачив поле 'cards'
+  const lists = useSelector((state: RootState) => state.lists?.items || []) as unknown as IList[];
 
   const renderDescriptionWithLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -99,6 +93,43 @@ export const CardEditWindow = () => {
       }
       return part;
     });
+  };
+
+  // ВИПРАВЛЕННЯ 2: Оновлена функція handleCopy
+  const handleCopy = async () => {
+    if (!card) return;
+
+    const safeListId = getSafeListId(card.list_id);
+    
+    // Знаходимо поточний список для розрахунку позиції
+    const currentList = lists.find((l) => l.id === safeListId);
+    
+    // Якщо список знайдено і в ньому є картки, ставимо в кінець (+1). 
+    // Якщо карток немає, позиція 1. Якщо список не знайдено, дефолтна велика позиція.
+    const newPosition = currentList 
+      ? (currentList.cards ? currentList.cards.length + 1 : 1) 
+      : 65535;
+
+    // Формуємо payload згідно зі спекою API (без users)
+    const newCardPayload = {
+      title: `${card.title} (Copy)`,
+      description: card.description || '',
+      list_id: safeListId,
+      position: newPosition,
+      // users: card.users || [] // ВИДАЛЕНО: API POST /card зазвичай не приймає юзерів
+    };
+
+    try {
+      await instance.post(`/board/${boardId}/card`, newCardPayload);
+      
+      closeWindow();
+      // Перезавантажуємо сторінку, щоб підтягнути нові дані з бекенду (включно з новим ID картки)
+      window.location.reload(); 
+      
+    } catch (error) {
+      console.error('Copy error:', error);
+      alert('Failed to copy card');
+    }
   };
 
   let listName = 'Loading...';
@@ -131,13 +162,12 @@ export const CardEditWindow = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [navigate, boardId]);
 
-  // Завантаження даних при перезавантаженні сторінки
   useEffect(() => {
-    // Додали перевірку на наявність boardId
     if (boardId && (!card || lists.length === 0)) {
       setIsLoading(true);
 
-      instance.get<unknown>(`/board/${boardId}`)
+      instance
+        .get<unknown>(`/board/${boardId}`)
         .then((res) => {
           let data: IBoardResponse | null = null;
 
@@ -163,11 +193,13 @@ export const CardEditWindow = () => {
               dispatch(setLists(data.lists));
             }
 
-            dispatch(setBoardData({
-              id: data.id,
-              title: data.title,
-              users: data.users || []
-            }));
+            dispatch(
+              setBoardData({
+                id: data.id,
+                title: data.title,
+                users: data.users || [],
+              })
+            );
           }
         })
         .catch((err) => console.error('Load Error:', err))
@@ -179,26 +211,21 @@ export const CardEditWindow = () => {
     if (!card) return;
 
     const isMember = card.users && card.users.some((u) => u.id === currentUserId);
-
-    // --- ВИПРАВЛЕННЯ 2: Payload (тіло запиту) ---
-    // Це виправляє помилку 400 Bad Request при додаванні учасника
-    const apiBody = isMember
-      ? { remove: [currentUserId], add: [] }
-      : { add: [currentUserId], remove: [] };
+    const apiBody = isMember ? { remove: [currentUserId], add: [] } : { add: [currentUserId], remove: [] };
 
     let newUsers = [...(card.users || [])];
 
     if (isMember) {
       newUsers = newUsers.filter((u) => u.id !== currentUserId);
     } else {
-      newUsers.push({ id: currentUserId, username: 'Me' }); 
+      newUsers.push({ id: currentUserId, username: 'Me' });
     }
     dispatch(updateCard({ ...card, users: newUsers }));
 
     try {
       await instance.put(`/board/${boardId}/card/${cardId}/users`, apiBody);
     } catch (error) {
-      console.error("Join error:", error);
+      console.error('Join error:', error);
     }
   };
 
@@ -222,84 +249,119 @@ export const CardEditWindow = () => {
     }
   };
 
-  const handleTitleSave = () => { setIsEditingTitle(false); saveChanges(); };
-  const handleDescSave = () => { setIsEditingDesc(false); saveChanges(); };
+  const handleTitleSave = () => {
+    setIsEditingTitle(false);
+    saveChanges();
+  };
+  const handleDescSave = () => {
+    setIsEditingDesc(false);
+    saveChanges();
+  };
   const closeWindow = () => navigate(`/board/${boardId}`);
 
   if (isLoading) return <div className="modal-overlay">Завантаження...</div>;
   if (!card) return <div className="modal-overlay">Card not found</div>;
 
   const isMember = card.users && card.users.some((u) => u.id === currentUserId);
-  const joinButtonText = isMember ? "Покинути" : "Приєднатися";
+  const joinButtonText = isMember ? 'Покинути' : 'Приєднатися';
 
   return (
     <div className="modal-overlay" onClick={closeWindow}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close-button" onClick={closeWindow}>x</button>
+        <button className="modal-close-button" onClick={closeWindow}>
+          x
+        </button>
 
-        {isEditingTitle ? (
-          <input
-            autoFocus
-            className="changeTitle"
-            value={localTitle}
-            onChange={(e) => setLocalTitle(e.target.value)}
-            onBlur={handleTitleSave}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleTitleSave(); }}
-          />
-        ) : (
-          <h2 className="title" onClick={() => setIsEditingTitle(true)}>{localTitle}</h2>
-        )}
+        <div className="modal-main">
+          {/* HEADER */}
+          <div className="header-section">
+            {isEditingTitle ? (
+              <input
+                autoFocus
+                className="changeTitle"
+                value={localTitle}
+                onChange={(e) => setLocalTitle(e.target.value)}
+                onBlur={handleTitleSave}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleTitleSave();
+                }}
+              />
+            ) : (
+              <h2 className="title" onClick={() => setIsEditingTitle(true)}>
+                {localTitle}
+              </h2>
+            )}
+            <p className="in-list-text">
+              In list <span className="list-name-highlight">{listName}</span>
+            </p>
+          </div>
 
-        <p className="in-list-text">
-          в колонці <span className="list-name-highlight">{listName}</span>
-        </p>
+          {/* MEMBERS */}
+          <div className="participants-section">
+            <h3 className="section-title">Members</h3>
+            <div className="participants-row">
+              {card.users &&
+                card.users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="user-avatar"
+                    title={user.username}
+                    style={{ backgroundColor: stringToColor(user.username || 'U') }}
+                  >
+                    {user.username ? user.username[0].toUpperCase() : 'U'}
+                  </div>
+                ))}
 
-        <div className="participants-section">
-          <h3 className="section-title">Учасники</h3>
-          <div className="participants-row">
-            {card.users && card.users.map((user) => (
-              <div
-                key={user.id}
-                className="user-avatar"
-                title={user.username}
-                style={{ backgroundColor: stringToColor(user.username || 'U') }}
-              >
-                {user.username ? user.username[0].toUpperCase() : 'U'}
+              <button className="add-participant-btn">+</button>
+
+              <button className={`join-btn ${isMember ? 'leave' : ''}`} onClick={handleJoinToggle}>
+                {joinButtonText}
+              </button>
+            </div>
+          </div>
+
+          {/* DESCRIPTION */}
+          <div className="description-section">
+            <h3 className="section-title">Description</h3>
+            {isEditingDesc ? (
+              <div>
+                <textarea
+                  className="descriptionTextarea"
+                  value={localDescription}
+                  onChange={(e) => setLocalDescription(e.target.value)}
+                  placeholder="Add a more detailed description..."
+                />
+                <div className="edit-controls">
+                  <button className="saveButton" onClick={handleDescSave}>
+                    Save
+                  </button>
+                  <button
+                    className="cancelButton"
+                    onClick={() => {
+                      setIsEditingDesc(false);
+                      setLocalDescription(card.description || '');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            ))}
-
-            <button className="add-participant-btn">+</button>
-
-            <button
-              className={`join-btn ${isMember ? 'leave' : ''}`}
-              onClick={handleJoinToggle}
-            >
-              {joinButtonText}
-            </button>
+            ) : (
+              <p className="content" onClick={() => setIsEditingDesc(true)}>
+                {renderDescriptionWithLinks(localDescription) || 'Add a more detailed description...'}
+              </p>
+            )}
           </div>
         </div>
 
-        <h3 className="section-title">Опис</h3>
-        {isEditingDesc ? (
-          <div>
-            <textarea
-              className="descriptionTextarea"
-              value={localDescription}
-              onChange={(e) => setLocalDescription(e.target.value)}
-            />
-            <div className="edit-controls">
-              <button className="saveButton" onClick={handleDescSave}>Save</button>
-              <button className="cancelButton" onClick={() => {
-                setIsEditingDesc(false);
-                setLocalDescription(card.description || '');
-              }}>Cancel</button>
-            </div>
-          </div>
-        ) : (
-          <p className="content" onClick={() => setIsEditingDesc(true)}>
-            {renderDescriptionWithLinks(localDescription) || 'Додати детальніший опис...'}
-          </p>
-        )}
+        {/* --- RIGHT COLUMN (SIDEBAR) --- */}
+        <div className="modal-sidebar">
+          <h3 className="section-title">Actions</h3>
+
+          <button className="sidebar-btn" onClick={handleCopy}>Copy</button>
+          <button className="sidebar-btn">Move</button>
+          <button className="sidebar-btn archive-btn">Archive</button>
+        </div>
       </div>
     </div>
   );

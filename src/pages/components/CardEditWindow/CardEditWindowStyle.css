@@ -1,36 +1,67 @@
-/* --- Контейнер модального вікна --- */
-.modal-content {
-  cursor: default;
-  background-color: #f4f5f7;
+/* --- ОСНОВНИЙ КОНТЕЙНЕР (overlay) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 1600px; /* Оптимальна ширина */
   height: 100%;
-  max-height: 1000px;
-  border-radius: 8px;
-  padding: 24px;
-  position: relative;
+  background-color: rgba(0, 0, 0, 0.64);
   display: flex;
-  flex-direction: column;
-  gap: 16px; /* Відступи між елементами */
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 48px;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+/* --- МОДАЛЬНЕ ВІКНО --- */
+.modal-content {
+  background-color: #f4f5f7;
+  width: 90%;            /* 🔥 Майже на весь екран по ширині */
+  max-width: 1200px;     /* Обмеження для дуже великих моніторів */
+  min-height: 80vh;      /* 🔥 Високе вікно */
+  border-radius: 3px;
+  padding: 32px 40px;    /* Більше внутрішніх відступів */
+  position: relative;
+  display: flex;         /* Дві колонки */
+  flex-direction: row;
+  gap: 40px;             /* Більший відступ між колонками */
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
   color: #172b4d;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin-bottom: 48px;
 }
 
-/* --- Кнопка закриття (Хрестик) --- */
+/* --- КОЛОНКИ --- */
+.modal-main {
+  flex: 1; /* Ліва частина займає все вільне місце */
+  min-width: 0;
+}
+
+.modal-sidebar {
+  width: 200px; /* 🔥 Ширша права колонка для великих кнопок */
+  flex-shrink: 0;
+  padding-top: 50px; /* Вирівнювання відносно заголовка */
+}
+
+/* Кнопка закриття (X) */
 .modal-close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
   background: transparent;
   border: none;
   font-size: 24px;
   color: #42526e;
   cursor: pointer;
-  padding: 4px 10px;
   border-radius: 50%;
   transition: background 0.2s;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
 .modal-close-button:hover {
@@ -38,51 +69,143 @@
   color: #172b4d;
 }
 
-/* --- Заголовок (Title) --- */
-/* Стиль для H2 (коли просто читаємо) */
+/* --- ЗАГОЛОВОК --- */
+.header-section {
+  margin-bottom: 32px;
+}
+
 .title {
-  width: 50%;
-  font-size: 20px;
+  font-size: 24px; /* 🔥 Більший шрифт */
   font-weight: 600;
-  margin: 0;
-  padding: 6px 12px;
-  border-radius: 4px;
+  line-height: 28px;
+  margin: 0 -8px;
+  padding: 4px 8px;
+  border-radius: 3px;
   cursor: pointer;
-  border: 2px solid transparent; /* Щоб не "стрибало" при переключенні на input */
+  border: 2px solid transparent; 
   transition: background 0.2s;
+  width: 100%;
 }
 
 .title:hover {
   background-color: rgba(9, 30, 66, 0.08);
 }
 
-/* Стиль для Input (коли редагуємо) */
 .changeTitle {
-  font-size: 20px;
+  font-size: 24px; /* 🔥 Більший шрифт input */
   font-weight: 600;
-  margin: 0;
-  padding: 6px 12px;
-  width: 50%; /* На всю ширину */
-  border-radius: 4px;
-  border: 2px solid #0079bf; /* Синя рамка при фокусі */
+  line-height: 28px;
+  margin: 0 -8px;
+  padding: 4px 8px;
+  width: 100%; 
+  border-radius: 3px;
+  border: 2px solid #0079bf; 
   outline: none;
   background-color: white;
   box-shadow: inset 0 0 0 2px #0079bf;
 }
 
-/* --- Опис (Description) --- */
-/* Блок з текстом опису (коли не редагуємо) */
+.in-list-text {
+  font-size: 16px; /* Трохи більше */
+  color: #5e6c84;
+  margin-top: 8px;
+}
+
+.list-name-highlight {
+  color: #172b4d;
+  font-weight: 500;
+}
+
+/* --- ЗАГОЛОВКИ РОЗДІЛІВ (MEMBERS, DESCRIPTION...) --- */
+.section-title {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #5e6c84;
+    margin-bottom: 12px;
+    letter-spacing: 0.04em;
+}
+
+/* --- УЧАСНИКИ --- */
+.participants-section {
+  margin-bottom: 32px;
+}
+
+.participants-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px; 
+}
+
+.user-avatar {
+    width: 40px; /* 🔥 Більші аватарки */
+    height: 40px;
+    border-radius: 50%;
+    background-color: #dfe1e6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.add-participant-btn {
+    width: 40px; /* 🔥 Більша кнопка + */
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ebecf0;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #172b4d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.add-participant-btn:hover { background-color: #dfe1e6; }
+
+.join-btn {
+    padding: 0 16px;
+    height: 40px; /* Висота як у аватарок */
+    background-color: #ebecf0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 16px;
+    color: #172b4d;
+}
+.join-btn:hover { background-color: #dfe1e6; }
+
+.join-btn.leave {
+    background-color: #ebecf0;
+    color: #172b4d;
+}
+.join-btn.leave:hover {
+    background-color: #ffebe6;
+    color: #bf2600;
+}
+
+/* --- ОПИС --- */
+.description-section {
+  margin-bottom: 32px;
+}
+
 .content {
-  max-width: 50%;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px; /* 🔥 Більший текст опису */
+  line-height: 24px;
   min-height: 60px; 
   background-color: rgba(9, 30, 66, 0.04); 
-  padding: 12px;
-  border-radius: 4px;
+  padding: 12px 16px;
+  border-radius: 3px;
   cursor: pointer;
   margin: 0;
   white-space: pre-wrap; 
+  transition: background 0.2s;
 }
 
 .content:hover {
@@ -90,115 +213,77 @@
 }
 
 .descriptionTextarea {
-  width: 50%;
-  min-height: 120px;
-  padding: 12px;
-  border-radius: 4px;
+  width: 100%;
+  min-height: 150px;
+  padding: 12px 16px;
+  border-radius: 3px;
   border: 2px solid #0079bf;
   outline: none;
   resize: vertical; 
   font-family: inherit;
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 12px;
   display: block;
+  background: white;
 }
 
 .saveButton {
-  margin: 10px;
   background-color: #0079bf; 
   color: white;
   border: none;
-  padding: 8px 24px;
+  padding: 8px 24px; /* Більша кнопка */
+  font-size: 16px;
   font-weight: 500;
   border-radius: 3px;
   cursor: pointer;
-  margin-right: 8px;
+  margin-right: 12px;
   transition: background 0.2s;
 }
 
-.saveButton:hover {
-  background-color: #026aa7;
-}
+.saveButton:hover { background-color: #026aa7; }
 
 .cancelButton {
   background-color: transparent;
   color: #42526e;
   border: none;
   padding: 8px 16px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   border-radius: 3px;
 }
-
 .cancelButton:hover {
   background-color: rgba(9, 30, 66, 0.08);
   color: #172b4d;
 }
 
-.section-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #172b4d;
+/* --- САЙДБАР (КНОПКИ ДІЙ) --- */
+.sidebar-btn {
+  display: block;
+  width: 100%;
+  background-color: #ebecf0;
+  color: #172b4d;
+  border: none;
+  border-radius: 3px;
+  padding: 10px 16px; /* 🔥 Більші кнопки */
+  margin-bottom: 12px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 16px;    /* 🔥 Більший шрифт */
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
-.participants-row {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Відступ між кружечками */
-    margin-bottom: 24px;
+.sidebar-btn:hover {
+  background-color: #dfe1e6;
 }
 
-.user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #dfe1e6;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
+/* 🔥 Стиль для Архівації (червоний при наведенні) */
+.sidebar-btn.archive-btn {
+  margin-top: 24px; /* Відділяємо від інших */
 }
 
-.add-participant-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #ebecf0;
-    border: none;
-    cursor: pointer;
-    font-size: 20px;
-    color: #172b4d;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.add-participant-btn:hover {
-    background-color: #dfe1e6;
-}
-
-.join-btn {
-    padding: 6px 12px;
-    background-color: #ebecf0;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: 500;
-    color: #172b4d;
-}
-
-.join-btn:hover {
-    background-color: #dfe1e6;
-}
-
-.join-btn.leave {
-    background-color: #ffebe6; 
-    color: #bf2600;
-}
-.join-btn.leave:hover {
-    background-color: #ffbdad;
+.sidebar-btn.archive-btn:hover {
+  background-color: #b04632; /* Темно-червоний */
+  color: white;
 }
