@@ -6,8 +6,8 @@ import './List.css';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { uppertCards } from '../../../ReduxApi/cardSlice';
+import { upsertList } from '../../../ReduxApi/listSlice'; 
 import { AppDispatch } from '../../../ReduxApi/store';
-// Імпортуємо cardDetails, щоб знати, до чого приводити типи
 import { cardDetails } from '../../../ReduxApi/cardEdit';
 
 interface CardProps {
@@ -29,11 +29,17 @@ export const CardList = (props: CardProps) => {
         list_id: props.listId,
         listId: props.listId,
         description: card.description || '',
+        users : card.users || []
       }));
 
       dispatch(uppertCards(cardsForRedux));
     }
-  }, [props.cards, props.listId, dispatch]);
+    dispatch(upsertList({
+        id: props.listId,
+        title: props.title
+    }));
+
+  }, [props.cards, props.listId, props.title, dispatch]); 
 
   const cards = [...props.cards].sort((a, b) => a.position - b.position);
 
@@ -86,7 +92,6 @@ export const CardList = (props: CardProps) => {
   const handleDragLeave = (e: DragEvent<HTMLUListElement>) => {
     const list = e.currentTarget;
     const related = e.relatedTarget;
-    // без використання `as` або `any` — перевіряємо, чи related є Node
     if (!(related instanceof Node) || !list.contains(related)) {
       list.classList.remove('drag-over');
     }

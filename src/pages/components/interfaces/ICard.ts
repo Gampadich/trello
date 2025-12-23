@@ -1,3 +1,5 @@
+import { IUser } from "../../../ReduxApi/userSlice";
+
 export interface ICard {
   id: number;
   title: string;
@@ -8,4 +10,5 @@ export interface ICard {
   custom?: {
     deadline?: string;
   };
+  users : IUser[]
 }

@@ -31,7 +31,8 @@ export const cardSlice = createSlice({
                     state.items.push(updatedCard);
                 }
             })
-        }
+        },
+        
     }
 })
 

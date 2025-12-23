@@ -76,20 +76,19 @@
   max-width: 50%;
   font-size: 14px;
   line-height: 20px;
-  min-height: 60px; /* Щоб завжди було куди клікнути */
-  background-color: rgba(9, 30, 66, 0.04); /* Легкий сірий фон */
+  min-height: 60px; 
+  background-color: rgba(9, 30, 66, 0.04); 
   padding: 12px;
   border-radius: 4px;
   cursor: pointer;
   margin: 0;
-  white-space: pre-wrap; /* Зберігає відступи та переноси рядків */
+  white-space: pre-wrap; 
 }
 
 .content:hover {
   background-color: rgba(9, 30, 66, 0.08);
 }
 
-/* Textarea (коли редагуємо опис) */
 .descriptionTextarea {
   width: 50%;
   min-height: 120px;
@@ -97,17 +96,16 @@
   border-radius: 4px;
   border: 2px solid #0079bf;
   outline: none;
-  resize: vertical; /* Можна розтягувати тільки вниз */
+  resize: vertical; 
   font-family: inherit;
   font-size: 14px;
   margin-bottom: 12px;
   display: block;
 }
 
-/* --- Кнопки (Save / Cancel) --- */
 .saveButton {
   margin: 10px;
-  background-color: #0079bf; /* Trello Blue */
+  background-color: #0079bf; 
   color: white;
   border: none;
   padding: 8px 24px;
@@ -135,4 +133,72 @@
 .cancelButton:hover {
   background-color: rgba(9, 30, 66, 0.08);
   color: #172b4d;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #172b4d;
+}
+
+.participants-row {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Відступ між кружечками */
+    margin-bottom: 24px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #dfe1e6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.add-participant-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #ebecf0;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: #172b4d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-participant-btn:hover {
+    background-color: #dfe1e6;
+}
+
+.join-btn {
+    padding: 6px 12px;
+    background-color: #ebecf0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #172b4d;
+}
+
+.join-btn:hover {
+    background-color: #dfe1e6;
+}
+
+.join-btn.leave {
+    background-color: #ffebe6; 
+    color: #bf2600;
+}
+.join-btn.leave:hover {
+    background-color: #ffbdad;
 }
