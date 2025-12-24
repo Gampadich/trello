@@ -287,3 +287,53 @@
   background-color: #b04632; /* Темно-червоний */
   color: white;
 }
+
+/* Обгортка для кнопки в сайдбарі, щоб меню позиціонувалось відносно неї */
+.sidebar-btn-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Меню переміщення */
+.move-dropdown {
+  position: absolute;
+  top: 100%; /* Одразу під кнопкою */
+  left: 0;
+  width: 220px; /* Трохи ширше за кнопку */
+  background: white;
+  box-shadow: 0 8px 16px -4px rgba(9, 30, 66, 0.25), 0 0 0 1px rgba(9, 30, 66, 0.08);
+  border-radius: 3px;
+  z-index: 100;
+  padding: 8px 0;
+  margin-top: 4px;
+}
+
+.move-dropdown-header {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5e6c84;
+  border-bottom: 1px solid #ebecf0;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.move-dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #172b4d;
+  transition: background 0.1s;
+}
+
+.move-dropdown-item:hover {
+  background-color: #ebecf0;
+  color: #0079bf;
+}
+
+/* Виділення поточної колонки */
+.move-dropdown-item.current {
+  color: #a5adba;
+  cursor: default;
+  background: none;
+}

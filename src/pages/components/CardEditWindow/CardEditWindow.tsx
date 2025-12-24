@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './CardEditWindowStyle.css';
 import { updateCard, setCards } from '../../../ReduxApi/cardSlice';
@@ -66,86 +66,31 @@ export const CardEditWindow = () => {
 
   const currentUserId = Number(localStorage.getItem('userId')) || 1;
 
-  const card = useSelector((state: RootState) => 
-    state.cards.items.find((c) => c.id === Number(cardId))
-  );
-
-  // ВИПРАВЛЕННЯ 1: Примусове приведення типу до локального IList, щоб TypeScript бачив поле 'cards'
+  const card = useSelector((state: RootState) => state.cards.items.find((c) => c.id === Number(cardId)));
   const lists = useSelector((state: RootState) => state.lists?.items || []) as unknown as IList[];
-
-  const renderDescriptionWithLinks = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = text.split(urlRegex);
-    return parts.map((part, index) => {
-      if (part.match(urlRegex)) {
-        return (
-          <a
-            key={index}
-            href={part}
-            onClick={(e) => e.stopPropagation()}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ textDecoration: 'underline', color: '#0079bf', cursor: 'pointer' }}
-          >
-            {part}
-          </a>
-        );
-      }
-      return part;
-    });
-  };
-
-  // ВИПРАВЛЕННЯ 2: Оновлена функція handleCopy
-  const handleCopy = async () => {
-    if (!card) return;
-
-    const safeListId = getSafeListId(card.list_id);
-    
-    // Знаходимо поточний список для розрахунку позиції
-    const currentList = lists.find((l) => l.id === safeListId);
-    
-    // Якщо список знайдено і в ньому є картки, ставимо в кінець (+1). 
-    // Якщо карток немає, позиція 1. Якщо список не знайдено, дефолтна велика позиція.
-    const newPosition = currentList 
-      ? (currentList.cards ? currentList.cards.length + 1 : 1) 
-      : 65535;
-
-    // Формуємо payload згідно зі спекою API (без users)
-    const newCardPayload = {
-      title: `${card.title} (Copy)`,
-      description: card.description || '',
-      list_id: safeListId,
-      position: newPosition,
-      // users: card.users || [] // ВИДАЛЕНО: API POST /card зазвичай не приймає юзерів
-    };
-
-    try {
-      await instance.post(`/board/${boardId}/card`, newCardPayload);
-      
-      closeWindow();
-      // Перезавантажуємо сторінку, щоб підтягнути нові дані з бекенду (включно з новим ID картки)
-      window.location.reload(); 
-      
-    } catch (error) {
-      console.error('Copy error:', error);
-      alert('Failed to copy card');
-    }
-  };
-
-  let listName = 'Loading...';
-  if (card) {
-    const safeId = getSafeListId(card.list_id);
-    if (safeId !== null) {
-      const foundList = lists.find((l) => l.id === safeId);
-      listName = foundList ? foundList.title : 'Unknown List';
-    }
-  }
 
   const [localTitle, setLocalTitle] = useState('');
   const [localDescription, setLocalDescription] = useState('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [isMoveMenuOpen, setIsMoveMenuOpen] = useState(false);
+  const moveMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (moveMenuRef.current && !moveMenuRef.current.contains(event.target as Node)) {
+        setIsMoveMenuOpen(false);
+      }
+    };
+    if (isMoveMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMoveMenuOpen]);
 
   useEffect(() => {
     if (card) {
@@ -170,7 +115,6 @@ export const CardEditWindow = () => {
         .get<unknown>(`/board/${boardId}`)
         .then((res) => {
           let data: IBoardResponse | null = null;
-
           if (isBoardResponse(res)) {
             data = res;
           } else if (
@@ -186,46 +130,121 @@ export const CardEditWindow = () => {
             if (data.lists) {
               const allCards: ICard[] = [];
               data.lists.forEach((list) => {
-                if (list.cards) allCards.push(...list.cards);
+                if (list.cards) {
+                  const cardsWithListId = list.cards.map((c) => ({
+                    ...c,
+                    list_id: list.id,
+                  }));
+                  allCards.push(...cardsWithListId);
+                }
               });
-
               dispatch(setCards(allCards));
               dispatch(setLists(data.lists));
             }
-
-            dispatch(
-              setBoardData({
-                id: data.id,
-                title: data.title,
-                users: data.users || [],
-              })
-            );
+            dispatch(setBoardData({ id: data.id, title: data.title, users: data.users || [] }));
           }
         })
-        .catch((err) => console.error('Load Error:', err))
+        .catch((err) => console.error(err))
         .finally(() => setIsLoading(false));
     }
   }, [boardId, cardId, card, lists.length, dispatch]);
 
-  const handleJoinToggle = async () => {
+  const renderDescriptionWithLinks = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, index) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a
+            key={index}
+            href={part}
+            onClick={(e) => e.stopPropagation()}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: 'underline', color: '#0079bf', cursor: 'pointer' }}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
+  const handleCopy = async () => {
+    if (!card) return;
+    const safeListId = getSafeListId(card.list_id);
+    const currentList = lists.find((l) => String(l.id) === String(safeListId));
+    const newPosition = currentList ? (currentList.cards ? currentList.cards.length + 1 : 1) : 65535;
+
+    const newCardPayload = {
+      title: `${card.title} (Copy)`,
+      description: card.description || '',
+      list_id: safeListId,
+      position: newPosition,
+    };
+
+    try {
+      await instance.post(`/board/${boardId}/card`, newCardPayload);
+      closeWindow();
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert('Failed to copy card');
+    }
+  };
+
+  const handleMoveCard = async (targetListId: number) => {
+    if (!card) return;
+    const targetList = lists.find((l) => String(l.id) === String(targetListId));
+    const newPosition = targetList && targetList.cards ? targetList.cards.length + 1 : 1;
+
+    try {
+      await instance.put(`/board/${boardId}/card`, [
+        {
+          id: card.id,
+          list_id: targetListId,
+          position: newPosition,
+        },
+      ]);
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert('Failed to move card');
+    }
+  };
+
+  const handleArchive = async () => {
     if (!card) return;
 
+    const isConfirmed = window.confirm("Are you sure you want to archive (delete) this card?");
+    if (!isConfirmed) return;
+
+    try {
+      await instance.delete(`/board/${boardId}/card/${cardId}`);
+      closeWindow();
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to archive card");
+    }
+  };
+
+  const handleJoinToggle = async () => {
+    if (!card) return;
     const isMember = card.users && card.users.some((u) => u.id === currentUserId);
     const apiBody = isMember ? { remove: [currentUserId], add: [] } : { add: [currentUserId], remove: [] };
-
     let newUsers = [...(card.users || [])];
-
     if (isMember) {
       newUsers = newUsers.filter((u) => u.id !== currentUserId);
     } else {
       newUsers.push({ id: currentUserId, username: 'Me' });
     }
     dispatch(updateCard({ ...card, users: newUsers }));
-
     try {
       await instance.put(`/board/${boardId}/card/${cardId}/users`, apiBody);
     } catch (error) {
-      console.error('Join error:', error);
+      console.error(error);
     }
   };
 
@@ -233,19 +252,16 @@ export const CardEditWindow = () => {
     if (!card) return;
     const safeListId = getSafeListId(card.list_id);
     if (safeListId === null || isNaN(safeListId)) return;
-
     const apiPayload = {
       title: localTitle,
       description: localDescription,
       list_id: safeListId,
     };
-
     dispatch(updateCard({ ...card, ...apiPayload }));
-
     try {
       await instance.put(`/board/${boardId}/card/${cardId}`, apiPayload);
     } catch (error) {
-      console.error('API Error:', error);
+      console.error(error);
     }
   };
 
@@ -265,6 +281,18 @@ export const CardEditWindow = () => {
   const isMember = card.users && card.users.some((u) => u.id === currentUserId);
   const joinButtonText = isMember ? 'Покинути' : 'Приєднатися';
 
+  let listName = 'Loading...';
+  const currentListId = card ? getSafeListId(card.list_id) : null;
+
+  if (card && currentListId !== null) {
+    const foundList = lists.find((l) => String(l.id) === String(currentListId));
+    if (foundList) {
+      listName = foundList.title;
+    } else if (lists.length > 0) {
+      listName = 'Unknown List';
+    }
+  }
+
   return (
     <div className="modal-overlay" onClick={closeWindow}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -273,7 +301,6 @@ export const CardEditWindow = () => {
         </button>
 
         <div className="modal-main">
-          {/* HEADER */}
           <div className="header-section">
             {isEditingTitle ? (
               <input
@@ -296,7 +323,6 @@ export const CardEditWindow = () => {
             </p>
           </div>
 
-          {/* MEMBERS */}
           <div className="participants-section">
             <h3 className="section-title">Members</h3>
             <div className="participants-row">
@@ -311,16 +337,13 @@ export const CardEditWindow = () => {
                     {user.username ? user.username[0].toUpperCase() : 'U'}
                   </div>
                 ))}
-
               <button className="add-participant-btn">+</button>
-
               <button className={`join-btn ${isMember ? 'leave' : ''}`} onClick={handleJoinToggle}>
                 {joinButtonText}
               </button>
             </div>
           </div>
 
-          {/* DESCRIPTION */}
           <div className="description-section">
             <h3 className="section-title">Description</h3>
             {isEditingDesc ? (
@@ -354,13 +377,42 @@ export const CardEditWindow = () => {
           </div>
         </div>
 
-        {/* --- RIGHT COLUMN (SIDEBAR) --- */}
         <div className="modal-sidebar">
           <h3 className="section-title">Actions</h3>
 
-          <button className="sidebar-btn" onClick={handleCopy}>Copy</button>
-          <button className="sidebar-btn">Move</button>
-          <button className="sidebar-btn archive-btn">Archive</button>
+          <button className="sidebar-btn" onClick={handleCopy}>
+            Copy
+          </button>
+
+          <div className="sidebar-btn-wrapper" ref={moveMenuRef}>
+            <button className="sidebar-btn" onClick={() => setIsMoveMenuOpen(!isMoveMenuOpen)}>
+              Move
+            </button>
+
+            {isMoveMenuOpen && (
+              <div className="move-dropdown">
+                <div className="move-dropdown-header">Select destination</div>
+                {lists.map((list) => {
+                  const isCurrent = String(list.id) === String(currentListId);
+                  return (
+                    <div
+                      key={list.id}
+                      className={`move-dropdown-item ${isCurrent ? 'current' : ''}`}
+                      onClick={() => {
+                        if (!isCurrent) handleMoveCard(Number(list.id));
+                      }}
+                    >
+                      {list.title} {isCurrent && '(current)'}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <button className="sidebar-btn archive-btn" onClick={handleArchive}>
+            Archive
+          </button>
         </div>
       </div>
     </div>
