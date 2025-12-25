@@ -20,7 +20,6 @@ export const LogIn = () => {
           <input type="password" placeholder="Enter password..." />
         </label>
 
-        {/* Додай клас для помилки, якщо вона є */}
         {error && <p className="error-message">User with this nickname or password not found</p>}
 
         <button type="submit">Log in</button>
