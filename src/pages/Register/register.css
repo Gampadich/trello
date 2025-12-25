@@ -1,0 +1,28 @@
+/* --- Стилі для індикатора складності пароля --- */
+
+.password-strength {
+  display: flex;
+  gap: 5px; /* Відстань між смужками */
+  margin-top: 8px;
+  height: 4px; /* Висота смужок */
+}
+
+.strength-bar {
+  flex-grow: 1; /* Смужки розтягуються на всю ширину */
+  background-color: #e2e4e7; /* Сірий колір (неактивний) */
+  border-radius: 2px;
+  transition: background-color 0.3s ease;
+}
+
+/* Приклади класів, які ти будеш перемикати через JS */
+.strength-bar.weak {
+  background-color: #eb5a46; /* Червоний */
+}
+
+.strength-bar.medium {
+  background-color: #f2d600; /* Жовтий */
+}
+
+.strength-bar.strong {
+  background-color: #61bd4f; /* Зелений */
+}

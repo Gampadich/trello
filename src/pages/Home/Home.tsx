@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Board } from '../components/Board/Board';
 import instance from '../../api/request';
 import './Home.css';
+import { Link } from 'react-router-dom';
 
 interface CardType {
   id: number;
@@ -44,6 +45,7 @@ export const Home = () => {
   
   return (
     <>
+      <Link to='/login' className='Link'><button className='loginButton'>Log in</button></Link>
       <h1>My tables</h1>
       <Board cards={cards} />
     </>

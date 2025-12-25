@@ -1,0 +1,116 @@
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Можна перенести сюди шрифт */
+}
+
+/* Це правило гарантує, що padding не розширюватиме блоки */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Робимо фон на весь екран і центруємо форму */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f4f5f7; /* Світло-сірий фон, як у Trello */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Сама картка входу */
+.login-form {
+  background: white;
+  padding: 32px 40px;
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Легка тінь */
+  width: 100%;
+  max-width: 400px; /* Щоб не була надто широкою */
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Відстань між елементами */
+}
+
+/* Заголовок */
+.login-form h3 {
+  text-align: center;
+  color: #5e6c84;
+  margin-bottom: 10px;
+  margin-top: 0;
+  font-size: 24px;
+}
+
+/* Підписи до полів */
+.login-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Відступ між текстом і інпутом */
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Поля вводу */
+.login-form input {
+  padding: 10px;
+  border: 2px solid #dfe1e6;
+  border-radius: 3px;
+  background-color: #fafbfc;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+/* Ефект при натисканні на поле */
+.login-form input:focus {
+  border-color: #0079bf; /* Синій колір Trello */
+  outline: none;
+  background-color: white;
+}
+
+/* Кнопка входу */
+.login-form button {
+  background-color: #0079bf; /* Яскравий синій */
+  color: white;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.login-form button:hover {
+  background-color: #026aa7; /* Темніший синій при наведенні */
+}
+
+/* Повідомлення про помилку */
+.error-message {
+  color: #eb5a46; /* Червоний колір помилки */
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+  background-color: #ffebe6;
+  padding: 8px;
+  border-radius: 3px;
+}
+
+/* Нижній текст з посиланням */
+.register-link {
+  text-align: center;
+  font-size: 14px;
+  color: #5e6c84;
+  margin-top: 10px;
+}
+
+.register-link a {
+  color: #0079bf;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}

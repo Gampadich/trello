@@ -21,9 +21,8 @@ h1 {
 }
 
 .card-item {
-  min-width: 180px;
-  max-width: 200px;
-  min-height: 100px;
+  min-width: 240px;
+  min-height: 140px;
   padding: 20px 24px;
   border-radius: 20px;
   font-size: 18px;
@@ -82,6 +81,27 @@ h1 {
 
 .add-board-button:active {
   transform: translateY(0);
+}
+
+.Link{
+  text-decoration: none;
+}
+
+.loginButton{
+  position: absolute;
+  right: 75px;
+  width: 100px;
+  height: 50px;
+  cursor: pointer;
+  background-color: #f8f8f8ab;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  transition: 0.5s;
+}
+
+.loginButton:hover{
+  background-color: #c0c0c0ab;
+  transition: 0.5s;
 }
 
 @media (max-width: 768px) {
