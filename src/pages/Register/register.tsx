@@ -7,7 +7,7 @@ import { AxiosError } from 'axios';
 
 interface IRegisterResponse {
   result: string;
-  id: number; 
+  id: number;
 }
 
 interface ILoginResponse {
@@ -15,6 +15,24 @@ interface ILoginResponse {
   token: string;
   refreshToken: string;
 }
+
+const isRegisterResponse = (data: unknown): data is IRegisterResponse => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'id' in data &&
+    typeof (data as Record<string, unknown>).id === 'number'
+  );
+};
+
+const isLoginResponse = (data: unknown): data is ILoginResponse => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'token' in data &&
+    typeof (data as Record<string, unknown>).token === 'string'
+  );
+};
 
 export const Register = () => {
   const [email, setEmail] = useState<string>('');
@@ -29,7 +47,7 @@ export const Register = () => {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setPassword(val);
-    
+
     if (val.length === 0) {
       setPasswordScore(0);
     } else {
@@ -74,50 +92,30 @@ export const Register = () => {
     }
 
     try {
-      console.log('--- 1. Починаємо реєстрацію ---');
-      const response = await instance.post<IRegisterResponse>('/user', { email, password });
-      
-      // Логуємо "сиру" відповідь, щоб побачити, що там
-      console.log('--- 2. Сира відповідь від сервера:', response);
+      const registerResponse = await instance.post('/user', { email, password });
 
-      // Безпечна спроба дістати дані
-      // @ts-ignore
-      const regData = response.data || response;
-      console.log('--- 3. Дані, які ми витягли:', regData);
-
-      // Безпечна перевірка ID (використовуємо знак питання, щоб не падало)
-      if (!regData?.id) {
-         console.error('!!! УВАГА: Сервер не повернув ID. Структура відповіді:', regData);
-         alert('Помилка: сервер не повернув ID. Зроби скріншот консолі (F12).');
-         return;
+      if (!isRegisterResponse(registerResponse)) {
+        throw new Error('Registration failed: No ID received');
       }
 
-      console.log('--- 4. ID знайдено:', regData.id);
-      localStorage.setItem('userId', String(regData.id));
+      localStorage.setItem('userId', String(registerResponse.id));
 
-      // --- Логін ---
-      console.log('--- 5. Пробуємо залогінитись ---');
-      const loginResponse = await instance.post<ILoginResponse>('/login', { email, password });
-      
-      // @ts-ignore
-      const loginData = loginResponse.data || loginResponse;
-      
-      if (!loginData?.token) {
-        throw new Error('Token not found in login response');
+      const loginResponse = await instance.post('/login', { email, password });
+
+      if (!isLoginResponse(loginResponse)) {
+        throw new Error('Login failed after registration');
       }
 
-      localStorage.setItem('token', loginData.token);
-      console.log('--- 6. Успіх! Переходимо на дошку ---');
+      localStorage.setItem('token', loginResponse.token);
       navigate('/trello');
 
-    } catch (error) {
-      console.error('Помилка в процесі:', error);
-      const err = error as AxiosError<{ error: string }>;
-
-      if (err.response?.status === 400) {
+    } catch (e) {
+      console.error(e);
+      if (e instanceof AxiosError && e.response?.status === 400) {
         alert('Registration failed: User with this email probably exists.');
       } else {
-        alert((error as Error).message || 'Something went wrong');
+        const message = e instanceof Error ? e.message : 'Something went wrong';
+        alert(message);
       }
     }
   };
@@ -139,11 +137,11 @@ export const Register = () => {
 
         <label>
           Password
-          <input 
-            type="password" 
-            placeholder="Create a password..." 
-            value={password} 
-            onChange={handlePasswordChange} 
+          <input
+            type="password"
+            placeholder="Create a password..."
+            value={password}
+            onChange={handlePasswordChange}
           />
           <div className={`password-strength ${getStrengthClass()}`}>
             <div className={`strength-bar ${passwordScore >= 1 ? 'filled' : ''}`}></div>

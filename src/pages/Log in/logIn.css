@@ -2,38 +2,34 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Можна перенести сюди шрифт */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
 }
 
-/* Це правило гарантує, що padding не розширюватиме блоки */
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* Робимо фон на весь екран і центруємо форму */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f4f5f7; /* Світло-сірий фон, як у Trello */
+  background-color: #f4f5f7; 
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Сама картка входу */
 .login-form {
   background: white;
   padding: 32px 40px;
   border-radius: 3px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Легка тінь */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
   width: 100%;
-  max-width: 400px; /* Щоб не була надто широкою */
+  max-width: 400px; 
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Відстань між елементами */
+  gap: 16px; 
 }
 
-/* Заголовок */
 .login-form h3 {
   text-align: center;
   color: #5e6c84;
@@ -42,17 +38,15 @@ body {
   font-size: 24px;
 }
 
-/* Підписи до полів */
 .login-form label {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Відступ між текстом і інпутом */
+  gap: 8px; 
   font-size: 14px;
   font-weight: 600;
   color: #444;
 }
 
-/* Поля вводу */
 .login-form input {
   padding: 10px;
   border: 2px solid #dfe1e6;
@@ -62,16 +56,14 @@ body {
   transition: border-color 0.2s ease;
 }
 
-/* Ефект при натисканні на поле */
 .login-form input:focus {
-  border-color: #0079bf; /* Синій колір Trello */
+  border-color: #0079bf; 
   outline: none;
   background-color: white;
 }
 
-/* Кнопка входу */
 .login-form button {
-  background-color: #0079bf; /* Яскравий синій */
+  background-color: #0079bf; 
   color: white;
   border: none;
   padding: 10px;
@@ -84,12 +76,11 @@ body {
 }
 
 .login-form button:hover {
-  background-color: #026aa7; /* Темніший синій при наведенні */
+  background-color: #026aa7; 
 }
 
-/* Повідомлення про помилку */
 .error-message {
-  color: #eb5a46; /* Червоний колір помилки */
+  color: #eb5a46; 
   font-size: 14px;
   text-align: center;
   margin: 0;
@@ -98,7 +89,6 @@ body {
   border-radius: 3px;
 }
 
-/* Нижній текст з посиланням */
 .register-link {
   text-align: center;
   font-size: 14px;

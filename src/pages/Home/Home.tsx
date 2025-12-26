@@ -16,15 +16,14 @@ interface ApiBoardsResponse {
 
 export const Home = () => {
   const [cards, setCards] = useState<CardType[]>([]);
-  const [loading, setLoading] = useState(false); // За замовчуванням false, вмикаємо тільки при запиті
+  const [loading, setLoading] = useState(false); 
   const [error, setError] = useState<string | null>(null);
   const [auth, setAuth] = useState(false);
 
-  // Функція завантаження даних
   const fetchCards = async () => {
     try {
       setLoading(true);
-      setError(null); // Скидаємо помилки перед новим запитом
+      setError(null); 
       
       const response = await instance.get<ApiBoardsResponse>('/board');
       
@@ -34,11 +33,11 @@ export const Home = () => {
 
     } catch (err: any) {
       console.error('Error fetching cards:', err);
-      // Якщо помилка 401, то це не "Unknown error", а проблема авторизації
+      
       if (err.response && err.response.status === 401) {
         setAuth(false);
         setCards([]);
-        localStorage.removeItem('token'); // Чистимо поганий токен
+        localStorage.removeItem('token'); 
       } else {
         setError(err.message || 'Unknown error');
       }
@@ -52,24 +51,21 @@ export const Home = () => {
     
     if (token) {
       setAuth(true);
-      fetchCards(); // Вантажимо тільки якщо є токен
+      fetchCards(); 
     } else {
       setAuth(false);
-      setCards([]); // Якщо токена немає - карток бути не може
+      setCards([]);
     }
 
     document.body.style.backgroundColor = '#ffffff';
-  }, []); // Цей ефект спрацює при завантаженні сторінки
+  }, []); 
 
   const handleLogout = () => {
-    // 1. Видаляємо дані з браузера
     localStorage.removeItem('userId');
     localStorage.removeItem('token');
     
-    // 2. Оновлюємо інтерфейс
     setAuth(false);
     
-    // 3. ВАЖЛИВО: Очищаємо масив карток, щоб наступний юзер не бачив старих
     setCards([]); 
     setError(null);
   };
