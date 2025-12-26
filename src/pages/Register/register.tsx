@@ -5,15 +5,11 @@ import zxcvbn from 'zxcvbn';
 import instance from '../../api/request';
 import { AxiosError } from 'axios';
 
-// --- ТИПИ (згідно з твоєю таблицею) ---
-
-// Відповідь на POST /user (Реєстрація)
 interface IRegisterResponse {
   result: string;
-  id: number; // <--- Сервер повертає ID тут!
+  id: number; 
 }
 
-// Відповідь на POST /login (Логін)
 interface ILoginResponse {
   result: string;
   token: string;
@@ -33,6 +29,7 @@ export const Register = () => {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setPassword(val);
+    
     if (val.length === 0) {
       setPasswordScore(0);
     } else {
@@ -65,8 +62,6 @@ export const Register = () => {
     return 'strong';
   };
 
-  const strengthClass = getStrengthClass();
-
   const handleSendRegister = async () => {
     if (!email || !password) {
       alert('Please fill in all fields');
@@ -79,47 +74,50 @@ export const Register = () => {
     }
 
     try {
-      // --- КРОК 1: Реєстрація (отримуємо ID відразу) ---
-      // TS знає, що registerResponse має поле id завдяки <IRegisterResponse>
-      const registerResponse = await instance.post<IRegisterResponse>('/user', { email, password });
+      console.log('--- 1. Починаємо реєстрацію ---');
+      const response = await instance.post<IRegisterResponse>('/user', { email, password });
       
-      // Оскільки у тебе interceptor, він повертає дані напряму. 
-      // Приводимо тип через 'unknown', щоб TS не сварився, якщо interceptor складний
-      const regData = registerResponse as unknown as IRegisterResponse;
+      // Логуємо "сиру" відповідь, щоб побачити, що там
+      console.log('--- 2. Сира відповідь від сервера:', response);
 
-      if (regData.id) {
-         localStorage.setItem('userId', String(regData.id));
-         console.log('User ID saved:', regData.id);
+      // Безпечна спроба дістати дані
+      // @ts-ignore
+      const regData = response.data || response;
+      console.log('--- 3. Дані, які ми витягли:', regData);
+
+      // Безпечна перевірка ID (використовуємо знак питання, щоб не падало)
+      if (!regData?.id) {
+         console.error('!!! УВАГА: Сервер не повернув ID. Структура відповіді:', regData);
+         alert('Помилка: сервер не повернув ID. Зроби скріншот консолі (F12).');
+         return;
       }
 
-      // --- КРОК 2: Логін (отримуємо Токен) ---
+      console.log('--- 4. ID знайдено:', regData.id);
+      localStorage.setItem('userId', String(regData.id));
+
+      // --- Логін ---
+      console.log('--- 5. Пробуємо залогінитись ---');
       const loginResponse = await instance.post<ILoginResponse>('/login', { email, password });
-      const loginData = loginResponse as unknown as ILoginResponse;
-
-      // Тепер беремо токен прямо з об'єкта (як на скріншоті консолі)
-      const token = loginData.token;
-
-      if (!token) {
-        console.error('Login Data:', loginData);
-        throw new Error('Token not found in response');
+      
+      // @ts-ignore
+      const loginData = loginResponse.data || loginResponse;
+      
+      if (!loginData?.token) {
+        throw new Error('Token not found in login response');
       }
 
-      localStorage.setItem('token', token);
-
-      
-      
-      alert('Registration successful!');
+      localStorage.setItem('token', loginData.token);
+      console.log('--- 6. Успіх! Переходимо на дошку ---');
       navigate('/trello');
 
     } catch (error) {
-      console.error('Registration flow failed:', error);
-      
+      console.error('Помилка в процесі:', error);
       const err = error as AxiosError<{ error: string }>;
-      
+
       if (err.response?.status === 400) {
         alert('Registration failed: User with this email probably exists.');
       } else {
-        alert(err.message || 'Something went wrong');
+        alert((error as Error).message || 'Something went wrong');
       }
     }
   };
@@ -128,26 +126,26 @@ export const Register = () => {
     <div className="login-container">
       <div className="login-form">
         <h3>Register</h3>
-        
+
         <label>
           Email
-          <input 
-            type="text" 
+          <input
+            type="email"
             placeholder="Enter your email..."
             value={email}
-            onChange={(e) => setEmail(e.target.value)} 
+            onChange={(e) => setEmail(e.target.value)}
           />
         </label>
-        
+
         <label>
           Password
-          <input
-            type="password"
-            placeholder="Create a password..."
-            value={password}
-            onChange={handlePasswordChange}
+          <input 
+            type="password" 
+            placeholder="Create a password..." 
+            value={password} 
+            onChange={handlePasswordChange} 
           />
-          <div className={`password-strength ${strengthClass}`}>
+          <div className={`password-strength ${getStrengthClass()}`}>
             <div className={`strength-bar ${passwordScore >= 1 ? 'filled' : ''}`}></div>
             <div className={`strength-bar ${passwordScore >= 2 ? 'filled' : ''}`}></div>
             <div className={`strength-bar ${passwordScore >= 3 ? 'filled' : ''}`}></div>
@@ -157,17 +155,19 @@ export const Register = () => {
 
         <label>
           Repeat password
-          <input 
-            type="password" 
-            placeholder="Repeat password..." 
+          <input
+            type="password"
+            placeholder="Repeat password..."
             value={confirmPassword}
-            onChange={handleRepeatPasswordChange} 
+            onChange={handleRepeatPasswordChange}
           />
           {isMatchError && <p className="error-message">Passwords don't match</p>}
         </label>
 
-        <button type="submit" onClick={handleSendRegister}>Register</button>
-        
+        <button type="submit" onClick={handleSendRegister}>
+          Register
+        </button>
+
         <p className="register-link">
           Already have an account? <Link to="/login">Log in</Link>
         </p>

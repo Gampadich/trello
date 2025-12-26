@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Board } from '../components/Board/Board';
 import instance from '../../api/request';
 import './Home.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 interface CardType {
   id: number;
@@ -16,53 +16,83 @@ interface ApiBoardsResponse {
 
 export const Home = () => {
   const [cards, setCards] = useState<CardType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // За замовчуванням false, вмикаємо тільки при запиті
   const [error, setError] = useState<string | null>(null);
-  const [auth, setAuth] = useState(false)
+  const [auth, setAuth] = useState(false);
 
-  const navigate = useNavigate()
+  // Функція завантаження даних
+  const fetchCards = async () => {
+    try {
+      setLoading(true);
+      setError(null); // Скидаємо помилки перед новим запитом
+      
+      const response = await instance.get<ApiBoardsResponse>('/board');
+      
+      // @ts-ignore
+      const data = response.boards ? response.boards : response;
+      setCards(data);
+
+    } catch (err: any) {
+      console.error('Error fetching cards:', err);
+      // Якщо помилка 401, то це не "Unknown error", а проблема авторизації
+      if (err.response && err.response.status === 401) {
+        setAuth(false);
+        setCards([]);
+        localStorage.removeItem('token'); // Чистимо поганий токен
+      } else {
+        setError(err.message || 'Unknown error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token){
-      setAuth(true)
-    }
-    document.body.style.backgroundColor = '#ffffff';
-    const fetchCards = async () => {
-      try {
-        setLoading(true);
-        const response: ApiBoardsResponse = await instance.get('/board');
-        
-        setCards(response.boards);
-        
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        setError(errorMessage);
-        console.error('Error fetching cards:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const token = localStorage.getItem('token');
     
-    fetchCards();
-  }, []);
+    if (token) {
+      setAuth(true);
+      fetchCards(); // Вантажимо тільки якщо є токен
+    } else {
+      setAuth(false);
+      setCards([]); // Якщо токена немає - карток бути не може
+    }
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  
+    document.body.style.backgroundColor = '#ffffff';
+  }, []); // Цей ефект спрацює при завантаженні сторінки
+
   const handleLogout = () => {
-    localStorage.setItem('userId', '')
-    localStorage.setItem('token', '')
-    setAuth(false)
-  }
+    // 1. Видаляємо дані з браузера
+    localStorage.removeItem('userId');
+    localStorage.removeItem('token');
+    
+    // 2. Оновлюємо інтерфейс
+    setAuth(false);
+    
+    // 3. ВАЖЛИВО: Очищаємо масив карток, щоб наступний юзер не бачив старих
+    setCards([]); 
+    setError(null);
+  };
 
   return (
     <>
-      {auth 
-        ? <Link to='/login' className='Link'><button className='loginButton'>Log in</button></Link>
-        : <button className='loginButton' onClick={handleLogout}>Log out</button>}
+      {auth ? (
+        <Link to='/login'><button className='loginButton' onClick={handleLogout}>
+          Log out
+        </button></Link>
+      ) : (
+        <Link to='/login' className='Link'>
+          <button className='loginButton'>Log in</button>
+        </Link>
+      )}
+
       <h1>My tables</h1>
-      <Board cards={cards} />
+      
+      {loading && <div>Loading your boards...</div>}
+      
+      {error && <div style={{color: 'red'}}>Error: {error}</div>}
+      
+      {!loading && <Board cards={cards} />}
     </>
   );
 };
