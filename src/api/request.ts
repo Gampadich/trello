@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { api } from '../common/constants';
+
 
 const instance = axios.create({
-  baseURL: api.baseURL,
+  baseURL: 'https://trello-back.shpp.me/RomanDiachenko/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
