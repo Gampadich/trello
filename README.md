@@ -1,112 +1,81 @@
-# 📋 Trello Clone
+# 📋 Trello Clone (Kanban Task Manager)
 
-A personal pet project attempting to recreate the core functionality of Trello - a popular task management application. This project is my journey in learning modern web development through building a real-world application.
+A robust and responsive task management application built with **React** and **TypeScript**. This project replicates the core functionality of Trello, featuring secure authentication, dynamic board management, and a modern UI.
 
-## 🎯 Project Goal
+The application demonstrates advanced frontend patterns including JWT handling, protected routes, and strict type safety.
 
-The main goal of this project is to build a functional Trello-like board where users can:
-- Create multiple lists (columns)
-- Add cards to each list
-- Organize tasks visually
-- Manage their workflow
+## 🚀 Live Demo
+> *[Insert link to your Vercel/Netlify deploy here if available, or remove this line]*
 
-## 🚀 Features
+## ✨ Features
 
-- ✅ Create and display multiple lists
-- ✅ Add cards to lists
-- ✅ Visual board layout
-- ✅ Responsive design
-- 🔄 Drag and drop functionality (in progress)
-- 🔄 Edit and delete cards (planned)
-- 🔄 Persist data (planned)
+* **🔐 Secure Authentication:**
+    * User Registration with password strength validation (zxcvbn).
+    * Login/Logout functionality.
+    * **JWT Implementation:** Access tokens are securely handled via **Axios Interceptors** for seamless user experience.
+* **📂 Board Management:**
+    * View personal dashboards.
+    * Create new boards (dynamic API integration).
+    * Real-time UI updates.
+* **🛡️ Protected Routes:**
+    * Access control for authorized users only.
+    * Auto-redirect to login for guests.
+* **🎨 UI/UX:**
+    * Responsive design for mobile and desktop.
+    * Interactive forms with validation.
 
-## 🛠️ Technologies Used
+## 🛠️ Tech Stack
 
-- **React** - UI library
-- **TypeScript** - Type safety
-- **CSS3** - Styling
-- **Vite** (or Create React App) - Build tool
+* **Core:** React, TypeScript
+* **Routing:** React Router DOM (v6)
+* **HTTP Client:** Axios (Custom instance with Request/Response Interceptors)
+* **Styling:** CSS3 (Flexbox/Grid), CSS Modules
+* **Utilities:** zxcvbn (Password strength estimation)
 
-## 📦 Installation
+## ⚙️ Installation & Running
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/trello-clone.git
-```
+Follow these steps to set up the project locally:
 
-2. Navigate to the project directory:
-```bash
-cd trello-clone
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/yourusername/trello-clone.git](https://github.com/yourusername/trello-clone.git)
+    ```
 
-3. Install dependencies:
-```bash
-npm install
-```
+2.  **Navigate to the project directory:**
+    ```bash
+    cd trello-clone
+    ```
 
-4. Start the development server:
-```bash
-npm run dev
-```
+3.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-5. Open your browser and visit `http://localhost:5173`
+4.  **Configure Environment:**
+    Create a `.env.local` file in the root directory and add your API URL:
+    ```env
+    REACT_APP_API_URL=[https://trello-back.shpp.me/YourNickname/api/v1](https://trello-back.shpp.me/YourNickname/api/v1)
+    ```
 
-## 🎨 Project Structure
+5.  **Start the application:**
+    ```bash
+    npm start
+    ```
 
-```
-src/
-├── pages/
-│   └── Board/
-│       ├── Board.tsx
-│       └── components/
-│           └── List/
-│               ├── CardList.tsx
-│               └── CardList.css
-├── types/
-│   └── index.ts
-└── App.tsx
-```
+## 🧠 Key Learnings & Implementation Details
 
-## 📝 Usage
+This project was built to master modern React patterns:
 
-1. View your board with different lists (Плани, В процесі, Зроблено)
-2. Each list contains cards with tasks
-3. Click "+ Add Card" to add new tasks (functionality in progress)
-4. Click "+ Add list" to create new lists (functionality in progress)
-
-## 🎓 Learning Outcomes
-
-Through this project, I'm learning:
-- Component-based architecture in React
-- TypeScript type system and interfaces
-- State management
-- CSS styling and layouts
-- Props drilling and component communication
+* **TypeScript Integration:** Fully typed components, props, and API responses (no `any` types) to ensure code reliability.
+* **Axios Interceptors:** Implemented a scalable HTTP layer that automatically attaches the `Authorization: Bearer <token>` header to requests and handles global `401 Unauthorized` errors.
+* **State Management:** effective use of `useState` and `useEffect` for data fetching and UI synchronization.
 
 ## 🔮 Future Improvements
 
-- [ ] Implement drag and drop for cards
-- [ ] Add ability to create new cards
-- [ ] Add ability to create new lists
-- [ ] Edit and delete functionality
-- [ ] Local storage for data persistence
-- [ ] Backend integration
-- [ ] User authentication
-- [ ] Card details modal
-- [ ] Due dates and labels
-
-## 🤝 Contributing
-
-This is a personal learning project, but suggestions and feedback are welcome! Feel free to open an issue or submit a pull request.
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 👨‍💻 Author
-
-Created as a learning project to understand web development better.
+* [ ] Drag-and-drop functionality for cards and lists.
+* [ ] User profile editing.
+* [ ] Dark mode support.
 
 ---
 
-⭐ If you find this project interesting, feel free to star it!
+**Author:** Roman Diachenko
