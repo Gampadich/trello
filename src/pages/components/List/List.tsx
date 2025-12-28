@@ -73,20 +73,6 @@ export const CardList = (props: CardProps) => {
 
   const handleDragOver = (e: DragEvent<HTMLUListElement>) => {
     e.preventDefault();
-    const list = e.currentTarget;
-    list.classList.add('drag-over');
-
-    const afterElement = getDragAfterElement(list, e.clientY);
-    let slot = document.querySelector('.slot');
-    if (!slot) {
-      slot = document.createElement('div');
-      slot.classList.add('slot');
-    }
-    if (afterElement === null) {
-      list.appendChild(slot);
-    } else {
-      list.insertBefore(slot, afterElement);
-    }
   };
 
   const handleDragLeave = (e: DragEvent<HTMLUListElement>) => {
@@ -101,17 +87,34 @@ export const CardList = (props: CardProps) => {
     e.preventDefault();
     const list = e.currentTarget;
     list.classList.remove('drag-over');
+
     const cardIdString = e.dataTransfer.getData('cardId');
-    const slot = list.querySelector('.slot');
-    if (slot && cardIdString) {
+    
+    if (cardIdString) {
       const cardId = Number(cardIdString);
-      const allChildren = Array.from(list.children);
-      const newIndex = allChildren.indexOf(slot);
-      const newPosition = newIndex + 1;
-      slot.remove();
+
+      const afterElement = getDragAfterElement(list, e.clientY);
+      
+      let newPosition: number;
+
+      if (afterElement == null) {
+        newPosition = cards.length + 1; 
+      } else {
+        const allCardsInDom = Array.from(list.querySelectorAll('.card:not(.dragging)'));
+        const index = allCardsInDom.indexOf(afterElement);
+        newPosition = index + 1;
+      }
+
       try {
-        await instance.put(`/board/${id}/card`, [{ id: cardId, position: newPosition, list_id: props.listId }]);
-        window.location.reload();
+        await instance.put(`/board/${id}/card`, [{ 
+            id: cardId, 
+            position: newPosition, 
+            list_id: props.listId 
+        }]);
+        
+        
+        window.location.reload(); 
+        
       } catch (error) {
         console.error('Error moving card:', error);
       }
@@ -119,11 +122,14 @@ export const CardList = (props: CardProps) => {
   };
 
   const getDragAfterElement = (container: HTMLElement, y: number): Element | null => {
-    const draggableElements = Array.from(container.querySelectorAll('.card:not(.dragging):not(.slot)'));
+    
+    const draggableElements = Array.from(container.querySelectorAll('.card:not(.dragging)'));
+
     return draggableElements.reduce(
       (closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
+        
         if (offset < 0 && offset > closest.offset) {
           return { offset: offset, element: child };
         } else {
@@ -133,7 +139,6 @@ export const CardList = (props: CardProps) => {
       { offset: Number.NEGATIVE_INFINITY, element: null as Element | null }
     ).element;
   };
-
   const listCards = cards.map((card) => (
     <Link key={card.id} to={`/board/${id}/card/${card.id}`} className="link">
       <li className="card" draggable={true} onDragStart={(e) => handleDragStart(e, card)} onDragEnd={handleDragEnd}>

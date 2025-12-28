@@ -48,6 +48,8 @@
   line-height: 1.4;
   color: #333;
   user-select: none;
+  overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 .card:hover {
