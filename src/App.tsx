@@ -1,6 +1,6 @@
 import { Board } from './pages/board/board';
 import './styles/App.css';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Route, Routes } from 'react-router-dom';
 import { Home } from './pages/Home/Home';
 import { CardEditWindow } from './pages/components/CardEditWindow/CardEditWindow';
 import { Provider } from 'react-redux';
@@ -11,7 +11,7 @@ import { Register } from './pages/Register/register';
 function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path='/login' element={<LogIn/>}/>
           <Route path='/register' element={<Register />} />
@@ -19,7 +19,7 @@ function App() {
           <Route path="/board/:id" element={<Board />} />
           <Route path="/trello" element={<Home />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </Provider>
   );
 }

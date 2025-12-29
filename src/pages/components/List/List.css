@@ -10,72 +10,6 @@
   max-height: 100%;
 }
 
-.containerCard ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: 10px;
-  padding-bottom: 2px;
-  transition:
-    min-height 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.card-list-ul.drag-over {
-  min-height: 150px;
-  background-color: rgba(9, 30, 66, 0.04);
-  border-radius: 3px;
-}
-
-.link{
-  text-decoration: none;
-}
-
-.card {
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 12px;
-  cursor: grab;
-  transition:
-    box-shadow 0.2s,
-    transform 0.1s;
-  font-size: 14px;
-  line-height: 1.4;
-  color: #333;
-  user-select: none;
-  overflow-wrap: break-word;
-  word-break: break-all;
-}
-
-.card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-}
-
-.card:active {
-  cursor: grabbing;
-}
-
-.dragging {
-  opacity: 0.4; /* Більш прозорий */
-  background-color: #e2e4ea;
-  border: 1px dashed #999;
-  box-shadow: none;
-}
-
-.slot {
-  height: 36px;
-  background-color: #e2e4ea;
-  border-radius: 3px;
-  border: 1px dashed rgba(9, 30, 66, 0.25);
-  opacity: 0.7;
-}
-
 .containerCard h2 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 18px;
@@ -86,50 +20,112 @@
   color: #333;
 }
 
-.addListButton {
-  width: 100%;
-  background-color: transparent;
-  border: 1px dashed #999;
+.card-list-ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Відступ між картками */
+  min-height: 10px;
+  padding-bottom: 2px;
+}
+
+/* --- СЛОТ (Дірка) --- */
+.slot {
+  height: 40px; /* Фіксована висота, як у картки */
+  background-color: rgba(9, 30, 66, 0.08);
   border-radius: 4px;
-  padding: 10px;
-  cursor: pointer;
+  border: 1px dashed rgba(9, 30, 66, 0.25);
+  margin-bottom: 8px;
+  /* 🔥 КРИТИЧНО: Мишка проходить крізь слот, щоб не ламати Drag-n-Drop */
+  pointer-events: none; 
+}
+
+/* --- КАРТКА (Контейнер LI) --- */
+.card {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+  cursor: grab;
+  transition: transform 0.1s, opacity 0.2s;
+  /* Прибираємо паддінги тут, вони будуть всередині посилання */
+  padding: 0; 
+  margin: 0;
+  list-style: none;
+}
+
+.card:hover {
+  background-color: #f4f5f7;
+}
+
+/* Стан перетягування: робимо картку напівпрозорою або приховуємо */
+.dragging {
+  opacity: 0.5;
+  background: #eee;
+  box-shadow: none;
+}
+
+/* --- ПОСИЛАННЯ ВСЕРЕДИНІ КАРТКИ --- */
+.card-link {
+  display: block;
+  text-decoration: none;
+  color: #172b4d;
+  padding: 8px 10px; /* Внутрішні відступи тут! */
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box; /* Щоб паддінги не ламали ширину */
+  
+  /* 🔥 ФІКС ДЛЯ ТЕКСТУ: Ламає довгі слова */
+  overflow-wrap: break-word; 
+  word-wrap: break-word;
+  word-break: break-word;
+  
+  /* 🔥 ФІКС ДЛЯ DRAG: Забороняє тягнути посилання як URL */
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.card-title {
   font-size: 14px;
-  color: #666;
-  transition:
-    background-color 0.2s,
-    border-color 0.2s;
+  line-height: 1.4;
+}
+
+.card-label {
+  height: 6px;
+  width: 40px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+/* --- ІНПУТИ ТА КНОПКИ --- */
+.add-card-container {
   margin-top: 10px;
 }
 
+.addListButton {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #5e6c84;
+  text-align: left;
+}
+
 .addListButton:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-color: #666;
-  color: #333;
+  background-color: rgba(9, 30, 66, 0.08);
+  color: #172b4d;
 }
 
 .card-input {
   width: 100%;
-  padding: 12px 16px;
-  font-size: 20px;
-  font-family: inherit;
-  color: #333;
-  background-color: #fff;
-  border: 1px dashed #ccc;
+  padding: 8px 10px;
+  font-size: 14px;
+  border: 2px solid #0079bf;
   border-radius: 4px;
   outline: none;
-  transition: all 0.2s ease;
   box-sizing: border-box;
-  margin-top: 10px;
-}
-
-.card-input::placeholder {
-  color: #999;
-  font-size: 20px;
-}
-
-.card-label {
-  height: 8px;
-  width: 40px;
-  border-radius: 4px;
-  margin-bottom: 4px;
 }
