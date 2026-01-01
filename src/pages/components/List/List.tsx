@@ -1,11 +1,11 @@
 import instance from '../../../api/request';
 import { useParams, Link } from 'react-router-dom';
-import { useState, DragEvent, useRef, useEffect, Fragment } from 'react';
+import { useState, DragEvent, useEffect, Fragment } from 'react';
 import { ICard } from '../interfaces/ICard';
-import './List.css'; // Переконайся, що CSS підключено
+import './List.css';
 import { useDispatch } from 'react-redux';
 import { uppertCards } from '../../../ReduxApi/cardSlice';
-import { upsertList } from '../../../ReduxApi/listSlice'; 
+import { upsertList } from '../../../ReduxApi/listSlice';
 import { AppDispatch } from '../../../ReduxApi/store';
 import { cardDetails } from '../../../ReduxApi/cardEdit';
 
@@ -18,12 +18,16 @@ interface CardProps {
 export const CardList = (props: CardProps) => {
   const { id } = useParams<{ id: string }>();
   const [clickButton, setClickButton] = useState(false);
-  
-  const dragItem = useRef<number | null>(null);
-  const dragNode = useRef<HTMLElement | null>(null);
-  const [dropIndex, setDropIndex] = useState<number | null>(null);
+  const [localCards, setLocalCards] = useState<ICard[]>([]);
+  const [placeholderIndex, setPlaceholderIndex] = useState<number | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    if (props.cards) {
+      setLocalCards([...props.cards].sort((a, b) => a.position - b.position));
+    }
+  }, [props.cards]);
 
   useEffect(() => {
     if (props.cards && props.cards.length > 0) {
@@ -32,57 +36,73 @@ export const CardList = (props: CardProps) => {
         list_id: props.listId,
         listId: props.listId,
         description: card.description || '',
-        users : card.users || []
+        users: card.users || []
       }));
       dispatch(uppertCards(cardsForRedux));
     }
     dispatch(upsertList({ id: props.listId, title: props.title }));
-  }, [props.cards, props.listId, props.title, dispatch]); 
+  }, [props.cards, props.listId, props.title, dispatch]);
 
-  const cards = [...props.cards].sort((a, b) => a.position - b.position);
-
-  // --- DRAG-N-DROP ---
-
-  const handleDragStart = (e: DragEvent<HTMLElement>, index: number, card: ICard) => {
+  const handleDragStart = (e: DragEvent<HTMLLIElement>, card: ICard) => {
     e.dataTransfer.setData('cardId', card.id.toString());
     e.dataTransfer.effectAllowed = 'move';
-    
-    dragItem.current = index;
-    dragNode.current = e.target as HTMLElement;
 
+    const target = e.currentTarget;
     setTimeout(() => {
-        if(dragNode.current) dragNode.current.classList.add('dragging');
+      target.classList.add('dragging');
     }, 0);
   };
 
-  const handleDragEnd = (e: DragEvent<HTMLElement>) => {
-    if(dragNode.current) dragNode.current.classList.remove('dragging');
-    dragItem.current = null;
-    dragNode.current = null;
-    setDropIndex(null);
+  const handleDragEnd = (e: DragEvent<HTMLLIElement>) => {
+    e.currentTarget.classList.remove('dragging');
+    setPlaceholderIndex(null);
   };
 
-  const handleDragEnter = (e: DragEvent<HTMLElement>, index: number) => {
-    if (dragItem.current === index) return;
-    setDropIndex(index);
+  const getDragAfterElement = (container: HTMLElement, y: number): Element | null => {
+    const draggableElements = Array.from(container.querySelectorAll('.card:not(.dragging)'));
+
+    return draggableElements.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      },
+      { offset: Number.NEGATIVE_INFINITY, element: null as Element | null }
+    ).element;
   };
 
-  const handleDragOverList = (e: DragEvent<HTMLUListElement>) => {
+  const handleDragOver = (e: DragEvent<HTMLUListElement>) => {
     e.preventDefault();
-    const target = e.target as HTMLElement;
-    // Якщо навели на сам список або порожнє місце знизу
-    if (target.tagName === 'UL' || target.classList.contains('card-list-ul')) {
-        setDropIndex(cards.length);
+    const list = e.currentTarget;
+
+    const afterElement = getDragAfterElement(list, e.clientY);
+
+    let newIndex;
+    if (afterElement == null) {
+      newIndex = localCards.length;
+    } else {
+      const domCards = Array.from(list.querySelectorAll('.card:not(.dragging)'));
+      const indexInDom = domCards.indexOf(afterElement);
+      newIndex = indexInDom;
+    }
+
+    if (newIndex !== placeholderIndex) {
+      setPlaceholderIndex(newIndex);
     }
   };
 
-  const handleDrop = async (e: DragEvent<HTMLElement>) => {
+  const handleDrop = async (e: DragEvent<HTMLUListElement>) => {
     e.preventDefault();
     const cardIdString = e.dataTransfer.getData('cardId');
-    
-    if(dragNode.current) dragNode.current.classList.remove('dragging');
-    const finalIndex = dropIndex;
-    setDropIndex(null);
+    const finalIndex = placeholderIndex;
+
+    setPlaceholderIndex(null);
+    document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
 
     if (!cardIdString || finalIndex === null) return;
 
@@ -90,38 +110,31 @@ export const CardList = (props: CardProps) => {
     const newPosition = finalIndex + 1;
 
     try {
-      await instance.put(`/board/${id}/card`, [{ 
-          id: cardId, 
-          position: newPosition, 
-          list_id: props.listId 
+      await instance.put(`/board/${id}/card`, [{
+        id: cardId,
+        position: newPosition,
+        list_id: props.listId
       }]);
-      window.location.reload(); 
+      window.location.reload();
     } catch (error) {
       console.error('Error moving card:', error);
     }
   };
 
-  // --- RENDER CARDS ---
-
-  const listCards = cards.map((card, index) => (
-    // Fragment приймає ТІЛЬКИ key. Ніяких className або cl тут не має бути!
+  const listCardsRender = localCards.map((card, index) => (
     <Fragment key={card.id}>
-      {dropIndex === index && <div className="slot"></div>}
-
-      <li 
-        className="card" 
-        draggable={true} 
-        onDragStart={(e) => handleDragStart(e, index, card)} 
-        onDragEnter={(e) => handleDragEnter(e, index)}
+      {placeholderIndex === index && <div className="slot"></div>}
+      <li
+        className="card"
+        draggable={true}
+        onDragStart={(e) => handleDragStart(e, card)}
         onDragEnd={handleDragEnd}
-        // preventDefault тут важливий, щоб події не "проковтувалися" дітьми
-        onDragOver={(e) => e.preventDefault()}
+        style={{ listStyle: 'none', padding: 0 }}
       >
-        <Link 
-          to={`/board/${id}/card/${card.id}`} 
-          // draggable={false} критично важливий для Link!
+        <Link
+          to={`/board/${id}/card/${card.id}`}
+          className="link-content"
           draggable={false}
-          className="card-link"
         >
           {card.color && <div className="card-label" style={{ background: card.color }}></div>}
           <div className="card-title">{card.title}</div>
@@ -138,12 +151,12 @@ export const CardList = (props: CardProps) => {
         <h2>{props.title}</h2>
         <ul
           className="card-list-ul"
-          onDragOver={handleDragOverList} 
+          onDragOver={handleDragOver}
           onDrop={handleDrop}
+          style={{ minHeight: '50px', paddingBottom: '10px' }}
         >
-          {listCards}
-          
-          {dropIndex === cards.length && <div className="slot"></div>}
+          {listCardsRender}
+          {placeholderIndex === localCards.length && <div className="slot"></div>}
         </ul>
 
         <div className="add-card-container">
@@ -156,19 +169,36 @@ export const CardList = (props: CardProps) => {
               className="card-input"
               onKeyDown={async (e) => {
                 if (e.key !== 'Enter') return;
-                if (!e.currentTarget.value.trim()) return; 
-                
-                const pos = cards.length + 1;
+                if (!e.currentTarget.value.trim()) return;
+
+                const title = e.currentTarget.value;
+                const pos = localCards.length + 1;
                 const date = new Date().toISOString();
-                const cardData = {
-                  title: e.currentTarget.value,
+
+                const tempCard: ICard = {
+                  id: Date.now(),
+                  title: title,
                   position: pos,
                   list_id: props.listId,
                   description: '',
-                  custom: { deadline: date },
+                  users: [],
+                  custom: { deadline: date }
                 };
-                await instance.post(`/board/${id}/card`, cardData);
-                window.location.reload();
+                setLocalCards([...localCards, tempCard]);
+                e.currentTarget.value = "";
+
+                try {
+                  await instance.post(`/board/${id}/card`, {
+                    title: title,
+                    position: pos,
+                    list_id: props.listId,
+                    description: '',
+                    custom: { deadline: date },
+                  });
+                  window.location.reload();
+                } catch (err) {
+                  console.error(err);
+                }
               }}
             />
           ) : (

@@ -2,7 +2,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './CardEditWindowStyle.css';
-import { updateCard, setCards } from '../../../ReduxApi/cardSlice';
+import { updateCard } from '../../../ReduxApi/cardSlice';
 import { setLists } from '../../../ReduxApi/listSlice';
 import { setBoardData, IUser } from '../../../ReduxApi/userSlice';
 import { RootState } from '../../../ReduxApi/store';
@@ -138,7 +138,6 @@ export const CardEditWindow = () => {
                   allCards.push(...cardsWithListId);
                 }
               });
-              dispatch(setCards(allCards));
               dispatch(setLists(data.lists));
             }
             dispatch(setBoardData({ id: data.id, title: data.title, users: data.users || [] }));
