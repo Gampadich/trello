@@ -6,7 +6,6 @@ import './Board.css';
 import { Settings } from './modalWindows/settings/settings';
 import { ICard } from '../components/interfaces/ICard';
 
-
 interface ListType {
   id: number;
   title: string;
@@ -22,38 +21,117 @@ export const Board = () => {
   const { id } = useParams<{ id: string }>();
   const [title, setTitle] = useState('');
   const [tables, setTables] = useState<ListType[]>([]);
+  
   const [loading, setLoading] = useState(false);
   const [titleClick, isTitleClick] = useState(false);
   const [buttonClick, isButtonClick] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
+  const fetchBoardDetails = async () => {
+    try {
+      setLoading(true);
+      const responce: Responce = await instance.get(`/board/${id}`);
+      setTitle(responce.title);
+
+      const sortedLists = responce.lists.map(list => ({
+        ...list,
+        cards: list.cards.sort((a, b) => a.position - b.position)
+      })).sort((a, b) => a.id - b.id);
+      
+      setTables(sortedLists);
+    } catch (error) {
+      console.error('Error fetching board details:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const savedColor = localStorage.getItem(`color-board-${id}`);
     document.body.style.backgroundColor = savedColor ? savedColor : '#ffffff';
-    setLoading(true);
-
-    const fetchBoardDetails = async () => {
-      try {
-        const responce: Responce = await instance.get(`/board/${id}`);
-        setTitle(responce.title);
-        setTables(responce.lists);
-      } catch (error) {
-        console.error('Error fetching board details:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchBoardDetails();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
+  const handleCardMove = async (cardId: number, sourceListId: number, targetListId: number, newIndex: number) => {
+    const newTables = JSON.parse(JSON.stringify(tables)) as ListType[];
+    const sourceList = newTables.find(l => l.id === sourceListId);
+    const targetList = newTables.find(l => l.id === targetListId);
+
+    if (!sourceList || !targetList) return;
+
+    const cardIndex = sourceList.cards.findIndex(c => c.id === cardId);
+    if (cardIndex === -1) return;
+
+    const [movedCard] = sourceList.cards.splice(cardIndex, 1);
+
+    movedCard.list_id = targetListId;
+    
+    targetList.cards.splice(newIndex, 0, movedCard);
+
+    targetList.cards.forEach((c, idx) => c.position = idx + 1);
+
+    setTables(newTables);
+
+    try {
+      await instance.put(`/board/${id}/card`, [{
+        id: cardId,
+        position: newIndex + 1,
+        list_id: targetListId
+      }]);
+    } catch (error) {
+      console.error("Failed to sync move with server", error)
+    }
+  };
+
+  const handleCardAdd = async (listId: number, title: string) => {
+    const newTables = [...tables];
+    const targetList = newTables.find(l => l.id === listId);
+    if (!targetList) return;
+
+    const tempId = Date.now();
+    const newPos = targetList.cards.length + 1;
+    const date = new Date().toISOString();
+
+    const newCard: ICard = {
+        id: tempId,
+        title: title,
+        position: newPos,
+        list_id: listId,
+        description: '',
+        users: [],
+        custom: { deadline: date }
+    };
+
+    targetList.cards.push(newCard);
+    setTables(newTables); 
+
+    try {
+        await instance.post(`/board/${id}/card`, {
+            title: title,
+            position: newPos,
+            list_id: listId,
+            description: '',
+            custom: { deadline: date },
+        });
+    } catch (error) {
+        console.error("Failed to add card", error);
+        setTables(prev => prev.map(l => {
+            if (l.id === listId) {
+                return { ...l, cards: l.cards.filter(c => c.id !== tempId) };
+            }
+            return l;
+        }));
+    }
+  };
+
+
+  if (loading && tables.length === 0) return <div>Loading...</div>;
 
   return (
     <div className="container">
       <Link to="/trello">
         <button className="home-button">To home page</button>
       </Link>
-
       {titleClick ? (
         <input
           className="board-title-input"
@@ -79,18 +157,19 @@ export const Board = () => {
 
       <div className="lists-wrapper">
         {tables.map((list) => (
-          <CardList listId={list.id} key={list.id} title={list.title} cards={list.cards} />
+          <CardList 
+            key={list.id} 
+            listId={list.id} 
+            title={list.title} 
+            cards={list.cards} 
+            onCardMove={handleCardMove}
+            onCardAdd={handleCardAdd}
+          />
         ))}
 
+        
         <button className="settings" onClick={() => setSettingsOpen(true)}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            fill="currentColor"
-            className="bi bi-gear-fill"
-            viewBox="0 0 16 16"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-gear-fill" viewBox="0 0 16 16">
             <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
           </svg>
         </button>
@@ -107,12 +186,14 @@ export const Board = () => {
               if (e.key === 'Enter') {
                 let pos = tables.length + 1;
                 const newList = {
-                  id: pos,
+                  id: Date.now(), 
                   title: e.currentTarget.value,
                   position: pos,
+                  cards: [] 
                 };
-                await instance.post(`/board/${id}/list`, newList);
-                window.location.reload();
+                setTables([...tables, newList]); 
+                isButtonClick(false);
+                await instance.post(`/board/${id}/list`, { title: e.currentTarget.value, position: pos });
               }
             }}
           />
