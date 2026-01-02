@@ -16,7 +16,6 @@ export const CardList = (props: CardProps) => {
   const [clickButton, setClickButton] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState<number | null>(null);
 
-  // Сортуємо картки
   const sortedCards = [...props.cards].sort((a, b) => a.position - b.position);
 
   const handleDragStart = (e: DragEvent<HTMLLIElement>, card: ICard) => {
@@ -70,10 +69,7 @@ export const CardList = (props: CardProps) => {
     }
   };
 
-  // 🔥 ВИПРАВЛЕННЯ: Перевіряємо координати, а не елементи
-  // 🔥 ВИПРАВЛЕННЯ: Ігноруємо фантомні події (0,0) та перевіряємо межі
   const handleDragLeave = (e: DragEvent<HTMLUListElement>) => {
-    // 1. БАГФІКС: Chrome іноді кидает подію з 0,0 - ігноруємо її
     if (e.clientX === 0 && e.clientY === 0) return;
 
     const list = e.currentTarget;
@@ -81,7 +77,6 @@ export const CardList = (props: CardProps) => {
     const x = e.clientX;
     const y = e.clientY;
 
-    // 2. Якщо курсор все ще фізично над списком — не прибираємо слот
     if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
       return; 
     }
@@ -137,7 +132,7 @@ export const CardList = (props: CardProps) => {
         <ul
           className="card-list-ul"
           onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave} // Тепер тут безпечна функція
+          onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           style={{ minHeight: '50px', paddingBottom: '10px' }}
         >
