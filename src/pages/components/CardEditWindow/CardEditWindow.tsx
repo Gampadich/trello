@@ -228,7 +228,6 @@ export const CardEditWindow = () => {
     try {
       await instance.delete(`/board/${boardId}/card/${cardId}`);
       closeWindow();
-      window.location.reload();
     } catch (error) {
       console.error(error);
       alert("Failed to archive card");
