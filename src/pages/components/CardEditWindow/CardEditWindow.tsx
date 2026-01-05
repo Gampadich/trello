@@ -2,7 +2,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './CardEditWindowStyle.css';
-import { updateCard } from '../../../ReduxApi/cardSlice';
+import { updateCard, setCards } from '../../../ReduxApi/cardSlice';
 import { setLists } from '../../../ReduxApi/listSlice';
 import { setBoardData, IUser } from '../../../ReduxApi/userSlice';
 import { RootState } from '../../../ReduxApi/store';
@@ -16,6 +16,7 @@ interface ICard {
   description?: string;
   list_id: ListIdVariant;
   users: IUser[];
+  position: number;
 }
 
 interface IList {
@@ -66,7 +67,10 @@ export const CardEditWindow = () => {
 
   const currentUserId = Number(localStorage.getItem('userId')) || 1;
 
-  const card = useSelector((state: RootState) => state.cards.items.find((c) => c.id === Number(cardId)));
+  const card = useSelector((state: RootState) => 
+    state.cards.items.find((c) => String(c.id) === String(cardId))
+  );
+
   const lists = useSelector((state: RootState) => state.lists?.items || []) as unknown as IList[];
 
   const [localTitle, setLocalTitle] = useState('');
@@ -131,14 +135,17 @@ export const CardEditWindow = () => {
               const allCards: ICard[] = [];
               data.lists.forEach((list) => {
                 if (list.cards) {
-                  const cardsWithListId = list.cards.map((c) => ({
+                  const cardsWithListId = list.cards.map((c, index) => ({
                     ...c,
                     list_id: list.id,
+                    position: c.position ?? index,
                   }));
                   allCards.push(...cardsWithListId);
                 }
               });
+              
               dispatch(setLists(data.lists));
+              dispatch(setCards(allCards)); 
             }
             dispatch(setBoardData({ id: data.id, title: data.title, users: data.users || [] }));
           }
@@ -274,8 +281,9 @@ export const CardEditWindow = () => {
   };
   const closeWindow = () => navigate(`/board/${boardId}`);
 
-  if (isLoading) return <div className="modal-overlay">Завантаження...</div>;
-  if (!card) return <div className="modal-overlay">Card not found</div>;
+  if (isLoading) return <div className="modal-overlay" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white'}}>Loading data...</div>;
+  
+  if (!card) return <div className="modal-overlay" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white'}} onClick={closeWindow}>Card not found (Click to close)</div>;
 
   const isMember = card.users && card.users.some((u) => u.id === currentUserId);
   const joinButtonText = isMember ? 'Покинути' : 'Приєднатися';
