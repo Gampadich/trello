@@ -12,10 +12,20 @@ interface CardDataInterface {
     custom : React.CSSProperties;
 }
 
+const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+};
+
 export const ModalWindow = ({ onClose } : ModalWindowProps) => {
     const [,setSend] = useState(false)
     const [title, setTitle] = useState("")
-    const [color, setColor] = useState("#ffffff")
+    
+    const [color, setColor] = useState(getRandomColor()) 
 
     const createCard = async () => {
         if (title.trim() === "") {
@@ -44,8 +54,18 @@ export const ModalWindow = ({ onClose } : ModalWindowProps) => {
         <div className="modal-overlay">
             <div className="modal-container">
                 <h2 className="modal-title">Add board</h2>
-                <input type="text" placeholder="Card title..." className="modal-input" onChange={(e) => setTitle(e.target.value)}/>
-                <input type="color" className="modal-color-input" onChange={(e) => setColor(e.target.value)}/>
+                <input 
+                    type="text" 
+                    placeholder="Board title..." 
+                    className="modal-input" 
+                    onChange={(e) => setTitle(e.target.value)}
+                />
+                <input 
+                    type="color" 
+                    className="modal-color-input" 
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
+                />
                 <div className="modal-buttons">
                     <button className="modal-button modal-button-cancel" onClick={onClose}>Cancel</button>
                     <button className="modal-button modal-button-create" onClick={() => createCard()}>Create</button>

@@ -193,7 +193,6 @@ export const CardEditWindow = () => {
     try {
       await instance.post(`/board/${boardId}/card`, newCardPayload);
       closeWindow();
-      window.location.reload();
     } catch (error) {
       console.error(error);
       alert('Failed to copy card');
@@ -213,7 +212,7 @@ export const CardEditWindow = () => {
           position: newPosition,
         },
       ]);
-      window.location.reload();
+      closeWindow();
     } catch (error) {
       console.error(error);
       alert('Failed to move card');
