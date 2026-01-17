@@ -284,7 +284,7 @@ export const CardEditWindow = () => {
   if (!card) return <div className="modal-overlay" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white'}} onClick={closeWindow}>Card not found (Click to close)</div>;
 
   const isMember = card.users && card.users.some((u) => u.id === currentUserId);
-  const joinButtonText = isMember ? 'Покинути' : 'Приєднатися';
+  const joinButtonText = isMember ? 'Leave' : 'Join';
 
   let listName = 'Loading...';
   const currentListId = card ? getSafeListId(card.list_id) : null;

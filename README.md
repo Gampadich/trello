@@ -11,11 +11,17 @@ A powerful, strictly typed task management application. Built to demonstrate com
 
 ## 🖼️ Preview
 
+**1. Main Dashboard:**
 ![Board Preview](./assets/board-view.png)
 
-*Interactive Drag & Drop workflow:*
-![Drag Action](./assets/drag-action.png)
+### 2. Deep Interaction
+*Drag & Drop workflow + Detailed card editing modal:*
+| Dragging Task | Editing Details |
+| :---: | :---: |
+| ![Drag Action](./assets/drag-action.png) | ![Edit Modal](./assets/modal-edit.png) |
 
+**3. Secure Authentication:**
+![Auth Screen](./assets/auth-screen.png)
 ---
 
 ## 🚀 Key Features
