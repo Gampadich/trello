@@ -21,8 +21,18 @@ A powerful, strictly typed task management application. Built to demonstrate com
 | ![Drag Action](./assets/drag-action.png) | ![Edit Modal](./assets/modal-edit.png) |
 
 **3. Secure Authentication:**
-![Auth Screen](./assets/auth-screen.png)
+*Log in and registration*
+![Auth Screen](./assets/auth-screen.png) | ![Register screen](./assets/registration-screen.png)
 ---
+
+**4. Edit screen:**
+*Edit card screen*
+![Edit screen](./assets/edit-screen.png)
+---
+
+**5. Main page:**
+![Main screen](./assets/main-page.png)
+
 
 ## 🚀 Key Features
 
