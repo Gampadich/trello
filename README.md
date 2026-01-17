@@ -46,7 +46,7 @@ A powerful, strictly typed task management application. Built to demonstrate com
 
 - **Framework:** React 18
 - **Language:** TypeScript
-- **Bundler:** Vite
+- **Bundler:** React (CRA)
 - **Styling:** CSS Modules / Styled Components
 - **Architecture:** Component-based with optimized rendering
 
